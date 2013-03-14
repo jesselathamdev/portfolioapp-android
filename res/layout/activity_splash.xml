@@ -1,0 +1,14 @@
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout01"
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent" 
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/imageViewLogo"
+        android:layout_width="221dp"
+        android:layout_height="54dp"
+        android:src="@drawable/portfolioapp_logo_451x86" />
+    
+</LinearLayout>
