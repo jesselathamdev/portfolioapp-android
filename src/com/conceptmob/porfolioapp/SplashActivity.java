@@ -51,7 +51,7 @@ public class SplashActivity extends Activity {
                 finally
                 {
                     // Called after splash time's up. Do some action after splash times up. Here we moved to another main activity class
-                    startActivity(new Intent(SplashActivity.this, HomeActivity.class));
+                    startActivity(new Intent(SplashActivity.this, PortfoliosActivity.class));
                     
                     SplashActivity.this.finish();
                 }

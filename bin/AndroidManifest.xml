@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeActivity"            
+            android:name=".PortfoliosActivity"            
             android:label="PortfolioApp" >
         </activity>
     </application>
