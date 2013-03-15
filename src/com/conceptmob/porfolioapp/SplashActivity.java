@@ -20,7 +20,7 @@ public class SplashActivity extends Activity {
         getWindow().getDecorView().getBackground().setDither(true);
         
         // Set time to splash out
-        final int splashScreenTimer = 3000;
+        final int splashScreenTimer = 1000;
 	
      // Create a thread to show splash screen up to splash time
         Thread splashThread = new Thread()

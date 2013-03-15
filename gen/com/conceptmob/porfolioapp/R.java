@@ -26,9 +26,10 @@ public final class R {
         public static final int portfolioapp_logo_451x86=0x7f020002;
     }
     public static final class id {
-        public static final int LinearLayout01=0x7f080002;
-        public static final int action_settings=0x7f080004;
-        public static final int imageViewLogo=0x7f080003;
+        public static final int LinearLayout01=0x7f080003;
+        public static final int action_settings=0x7f080005;
+        public static final int imageViewLogo=0x7f080004;
+        public static final int tvHomeCompleted=0x7f080002;
         public static final int tvHomeMessage=0x7f080000;
         public static final int tvHomeResponse=0x7f080001;
     }
