@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -23,33 +24,21 @@ import android.app.ListActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class PortfoliosActivity extends ListActivity
 {
-    String readPortfolios = "";
-    String stringCompleted = "";
-    JSONObject jObj = null;
-    List<Portfolio> portfolios = new ArrayList<Portfolio>();
-    
-    static final String[] FRUITS = new String[] { "Apple", "Avocado", "Banana",
-        "Blueberry", "Coconut", "Durian", "Guava", "Kiwifruit",
-        "Jackfruit", "Mango", "Olive", "Pear", "Sugar-apple" };
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setListAdapter(new ArrayAdapter<String>(this, R.layout.list_fruit, FRUITS));
-		
-		ListView listView = getListView();
-		listView.setTextFilterEnabled(true);
-		
-//        Log.v(this.toString(), "API: Attempting to contact server");
-		
-//		new FetchData().execute();
+		// new MyAsyncTask().execute("http://10.0.2.2:8000/api/v2/portfolios/");
+		new MyAsyncTask().execute("http://portfolioapp.conceptmob.com/api/v2/portfolios/");	    
 	}
 	
 
@@ -61,92 +50,84 @@ public class PortfoliosActivity extends ListActivity
 	}
 	
 	
-	private class FetchData extends AsyncTask<String, Void, String> {
-	   
+	class MyAsyncTask extends AsyncTask<String, Integer, ArrayList<HashMap<String, String>> > {
+	    ArrayList<HashMap<String, String>> portfoliosList;
+	    
 	    @Override
-	    protected String doInBackground(String... params) {
-	        readPortfolios = readPortfolios();
-	        stringCompleted = parseJSON(readPortfolios());
+	    protected ArrayList<HashMap<String, String>> doInBackground(String... params) {
+	        portfoliosList = processPortfolioJSON(getJSONfromURL(params[0]));
 	        
-	        return "Complete!";
+	        return portfoliosList;
 	    }
 	    
 	    @Override 
-	    protected void onPostExecute(String result) {
-	        Toast.makeText(getApplicationContext(), "OnPostExecute fired", Toast.LENGTH_SHORT);
+	    protected void onPostExecute(ArrayList<HashMap<String, String>> result) {
+	        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, portfoliosList, R.layout.list_portfolios, new String[] { "name", "portfolio_id" }, new int[] { R.id.item_title, R.id.item_subtitle });
+	        PortfoliosActivity.this.setListAdapter(adapter);
+	        final ListView lv = getListView();
+	        lv.setTextFilterEnabled(true);
+	        
 	    }
 	}
+		
 	
-	
-	private String readPortfolios() {
-	    URL url = null;
-        HttpURLConnection urlConnection = null;
-        InputStream iS = null;
-        InputStreamReader iSR = null;
-        StringBuilder builder = new StringBuilder();
-        try {
-            url = new URL("http://10.0.2.2:8000/api/v2/portfolios/"); // internal loopback test from http://developer.android.com/tools/devices/emulator.html#networkaddresses
-//            url = new URL("http://portfolioapp.conceptmob.com/api/v2/portfolios/");
-            urlConnection = (HttpURLConnection)url.openConnection();
-            iS = new BufferedInputStream(urlConnection.getInputStream());
-            iSR = new InputStreamReader(iS);
-            
-            int data = iSR.read();
-            while (data != -1) {
-                char current = (char) data;
-                data = iSR.read();
-                builder.append(current);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.v("Downloader", "Error getting data from server" + e.toString());
-        } finally {
-            urlConnection.disconnect();
-        }
-        
-        return builder.toString();	    
-	}
-	
-	
-	private String parseJSON(String json) {
-	    JSONObject responseJO = null;	    
-	    JSONArray portfoliosJA = null;
-	    JSONObject portfolioJO = null;
-	    List<Portfolio> portfolios = new ArrayList<Portfolio>();
-	    Portfolio portfolio; 
+	private ArrayList<HashMap<String, String>> processPortfolioJSON(JSONObject json) {
+	    
+	    ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
 	    
 	    try {
-	        responseJO = new JSONObject(json);
-	        portfoliosJA = responseJO.getJSONObject("data").getJSONArray("portfolios");
-	        for (int i = 0; i < portfoliosJA.length(); i++) {
-	            portfolioJO = portfoliosJA.getJSONObject(i);
-	            portfolio = new Portfolio(portfolioJO.getInt("id"), portfolioJO.getString("name"));
-	            portfolios.add(portfolio);	            
-	        }
+	        JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
 	        
+	        for (int i = 0; i < portfolios.length(); i++) {
+	            HashMap<String, String> map = new HashMap<String, String>();
+	            JSONObject p = portfolios.getJSONObject(i);
+	            map.put("id", String.valueOf(i));
+	            map.put("name", p.getString("name"));
+	            map.put("portfolio_id", p.getString("id".toString()));
+	            portfoliosList.add(map);
+	        }	        
 	    } catch (JSONException e) {
-	        e.printStackTrace();
+	        Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
 	    }
 	    
-	    return portfolios.get(0).getName().toString();
+        return portfoliosList;
 	}
 	
 	
-	private class Portfolio {
-	    int _id;
-	    String _name;
+	public static JSONObject getJSONfromURL(String url) {
+	    URL _url = null;
+        HttpURLConnection _urlConnection = null;
+        InputStream _iS = null;
+        InputStreamReader _iSR = null;
+        StringBuilder _result = new StringBuilder();
+        
+        try {
+            _url = new URL(url); 
+            _urlConnection = (HttpURLConnection)_url.openConnection();
+            _iS = new BufferedInputStream(_urlConnection.getInputStream());
+            _iSR = new InputStreamReader(_iS);
+            
+            int data = _iSR.read();
+            while (data != -1) {
+                char current = (char) data;
+                data = _iSR.read();
+                _result.append(current);
+            }
+        } catch (Exception e) {            
+            Log.e("Downloader", "Error getting data from server: " + e.toString());
+        } finally {
+            _urlConnection.disconnect();
+        }
+        
+        JSONObject _responseJO = null;
+        
+        try {
+            _responseJO = new JSONObject(_result.toString());            
+        } catch (JSONException e) {
+            Log.e("log_tag", "Error parsing data from server: " + e.toString());
+        }
 	    
-	    public Portfolio(int id, String name) {
-	        _id = id;
-	        _name = name;
-	    }
-	    
-	    public void setId(int id) { _id = id; }     
-	    public int getId() { return _id; }      
-	    
-	    public void setName(String name) { _name = name; }      
-	    public String getName() { return _name; }
+	    return _responseJO;
 	}
 
 }
-
