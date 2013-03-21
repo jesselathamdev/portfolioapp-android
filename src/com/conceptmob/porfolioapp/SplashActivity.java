@@ -14,7 +14,7 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         		
-        Log.v(this.toString(), "SCREEN: Loaded Splash screen.");
+        Log.v("ACTIVITY", "SCREEN: Loaded Splash screen.");
         
         getWindow().setFormat(PixelFormat.RGBA_8888);
         getWindow().getDecorView().getBackground().setDither(true);
@@ -51,7 +51,7 @@ public class SplashActivity extends Activity {
                 finally
                 {
                     // Called after splash time's up. Do some action after splash times up. Here we moved to another main activity class
-                    startActivity(new Intent(SplashActivity.this, PortfoliosActivity.class));
+                    startActivity(new Intent(SplashActivity.this, SimpleActivity.class));
                     
                     SplashActivity.this.finish();
                 }

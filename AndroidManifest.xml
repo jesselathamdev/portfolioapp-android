@@ -26,8 +26,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SimpleActivity"
+            android:label="PortfolioApp">           
+        </activity>
+        <activity
             android:name=".PortfoliosActivity"            
-            android:label="PortfolioApp" >
+            android:label="PortfolioApp">
         </activity>
     </application>
 

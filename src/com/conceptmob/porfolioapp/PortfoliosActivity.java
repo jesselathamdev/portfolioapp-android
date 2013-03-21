@@ -161,7 +161,7 @@ public class PortfoliosActivity extends ListActivity
       } finally {
           conn.disconnect();
       }    
-      Toast.makeText(getApplc  _result.toString(), duration)
+      
 	    return _result.toString();
 	}
 	
