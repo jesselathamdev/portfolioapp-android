@@ -1,44 +1,48 @@
 package com.conceptmob.porfolioapp;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.ListActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class PortfoliosActivity extends ListActivity
 {
-    
+  final String deviceIdentifier = "7ecce5c091a211e29924c82a144ced8c"; 
+  
+  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		new MyAsyncTask().execute("http://10.0.2.2:8000/api/v2/auth/token/create");
 		// new MyAsyncTask().execute("http://10.0.2.2:8000/api/v2/portfolios/");
-		new MyAsyncTask().execute("http://portfolioapp.conceptmob.com/api/v2/portfolios/");	    
+		// new MyAsyncTask().execute("http://portfolioapp.conceptmob.com/api/v2/portfolios/");	    
 	}
 	
 
@@ -55,7 +59,7 @@ public class PortfoliosActivity extends ListActivity
 	    
 	    @Override
 	    protected ArrayList<HashMap<String, String>> doInBackground(String... params) {
-	        portfoliosList = processPortfolioJSON(getJSONfromURL(params[0]));
+	        portfoliosList = processPortfolioJSON(getJSONfromURL(params[0], "POST", "item"));
 	        
 	        return portfoliosList;
 	    }
@@ -94,38 +98,124 @@ public class PortfoliosActivity extends ListActivity
 	}
 	
 	
-	public static JSONObject getJSONfromURL(String url) {
+	private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
+	{
+	    StringBuilder result = new StringBuilder();
+	    boolean first = true;
+
+	    for (NameValuePair pair : params)
+	    {
+	        if (first)
+	            first = false;
+	        else
+	            result.append("&");
+
+	        result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+	        result.append("=");
+	        result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+	    }
+
+	    return result.toString();
+	}
+	
+	
+	public static String getResultFromApi(String url, String method, String... args) {
 	    URL _url = null;
-        HttpURLConnection _urlConnection = null;
-        InputStream _iS = null;
-        InputStreamReader _iSR = null;
-        StringBuilder _result = new StringBuilder();
-        
-        try {
-            _url = new URL(url); 
-            _urlConnection = (HttpURLConnection)_url.openConnection();
-            _iS = new BufferedInputStream(_urlConnection.getInputStream());
-            _iSR = new InputStreamReader(_iS);
-            
-            int data = _iSR.read();
-            while (data != -1) {
-                char current = (char) data;
-                data = _iSR.read();
-                _result.append(current);
-            }
-        } catch (Exception e) {            
-            Log.e("Downloader", "Error getting data from server: " + e.toString());
-        } finally {
-            _urlConnection.disconnect();
-        }
-        
-        JSONObject _responseJO = null;
-        
-        try {
-            _responseJO = new JSONObject(_result.toString());            
-        } catch (JSONException e) {
-            Log.e("log_tag", "Error parsing data from server: " + e.toString());
-        }
+      HttpURLConnection conn = null;
+      InputStream _iS = null;
+      InputStreamReader _iSR = null;
+      StringBuilder _result = new StringBuilder();
+      
+      try {
+          _url = new URL(url); 
+          conn = (HttpURLConnection)_url.openConnection();
+          conn.setReadTimeout(10000);
+          conn.setConnectTimeout(15000);
+                    
+          conn.setRequestMethod(method);
+          conn.setDoInput(true);
+          conn.setDoOutput(true);
+          
+          List<NameValuePair> params = new ArrayList<NameValuePair>();
+          params.add(new BasicNameValuePair("email", "user@conceptmob.com"));
+          params.add(new BasicNameValuePair("password", "access"));
+          params.add(new BasicNameValuePair("identifier", "aabbcc"));
+          
+          OutputStream os = conn.getOutputStream();
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+          writer.write(getQuery(params));
+          writer.close();
+          os.close();
+          
+          _iS = new BufferedInputStream(conn.getInputStream());
+          _iSR = new InputStreamReader(_iS);
+          
+          int data = _iSR.read();
+          while (data != -1) {
+              char current = (char) data;
+              data = _iSR.read();
+              _result.append(current);
+          }
+      } catch (Exception e) {            
+          Log.e("Downloader", "Error getting data from server: " + e.toString());
+      } finally {
+          conn.disconnect();
+      }    
+      Toast.makeText(getApplc  _result.toString(), duration)
+	    return _result.toString();
+	}
+	
+
+	public static JSONObject getJSONfromURL(String url, String method, String... args) {
+  	  URL _url = null;
+      HttpURLConnection conn = null;
+      InputStream _iS = null;
+      InputStreamReader _iSR = null;
+      StringBuilder _result = new StringBuilder();
+      
+      try {
+          _url = new URL(url); 
+          conn = (HttpURLConnection)_url.openConnection();
+          conn.setReadTimeout(10000);
+          conn.setConnectTimeout(15000);
+                    
+          conn.setRequestMethod(method);
+          conn.setDoInput(true);
+          conn.setDoOutput(true);
+          
+          List<NameValuePair> params = new ArrayList<NameValuePair>();
+          params.add(new BasicNameValuePair("email", "user@conceptmob.com"));
+          params.add(new BasicNameValuePair("password", "access"));
+          params.add(new BasicNameValuePair("identifier", "aabbcc"));
+          
+          OutputStream os = conn.getOutputStream();
+          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+          writer.write(getQuery(params));
+          writer.close();
+          os.close();
+          
+          _iS = new BufferedInputStream(conn.getInputStream());
+          _iSR = new InputStreamReader(_iS);
+          
+          int data = _iSR.read();
+          while (data != -1) {
+              char current = (char) data;
+              data = _iSR.read();
+              _result.append(current);
+          }
+      } catch (Exception e) {            
+          Log.e("Downloader", "Error getting data from server: " + e.toString());
+      } finally {
+          conn.disconnect();
+      }    
+      
+      JSONObject _responseJO = null;
+      
+      try {
+          _responseJO = new JSONObject(_result.toString());            
+      } catch (JSONException e) {
+          Log.e("log_tag", "Error parsing data from server: " + e.toString());
+      }
 	    
 	    return _responseJO;
 	}
