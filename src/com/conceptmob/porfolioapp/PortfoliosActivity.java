@@ -28,7 +28,6 @@ import android.view.Menu;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 
 public class PortfoliosActivity extends ListActivity

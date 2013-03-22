@@ -11,6 +11,9 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.conceptmob.portfolioapp.utils.PortfolioAppRestClient;
+import com.loopj.android.http.*;
+
 
 public class SimpleActivity extends Activity {
   
@@ -32,21 +35,15 @@ public class SimpleActivity extends Activity {
         
         tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);
         
-        URL url = null;
-        HttpURLConnection httpURLConnection = null;
-        InputStream inputStream = null;
-        
-        try {
-            url = new URL(baseServerURL + "auth/token/create");
-            httpURLConnection = (HttpURLConnection)url.openConnection();
-            
-            inputStream = new BufferedInputStream(httpURLConnection.getInputStream());
-                                    
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            httpURLConnection.disconnect();
-        }
+       PortfolioAppRestClient client = new PortfolioAppRestClient();
+       RequestParams params = new RequestParams();
+       
+       client.get("auth/token/create", params, new AsyncHttpResponseHandler() {
+          @Override
+          public void onSuccess(String response) {
+              
+          }
+       });
     }
   
 }
