@@ -9,7 +9,7 @@ public class JSONErrorResponse {
     // Error
     // ----------------------------------------------------------------------
     
-    public static class Portfolios {
+    public static class Error {
         @Key("response")
         public Response response;      
     }
@@ -27,6 +27,6 @@ public class JSONErrorResponse {
         public int statusCode;
         
         @Key("message")
-        public int message;
+        public String message;
     }
 }
