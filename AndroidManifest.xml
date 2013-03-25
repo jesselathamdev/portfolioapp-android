@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.conceptmob.porfolioapp"
+    package="com.conceptmob.portfolioapp"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,12 +26,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SimpleActivity"
-            android:label="PortfolioApp">           
+            android:name=".SignInActivity"
+            android:theme="@android:style/Theme.NoTitleBar"            
+            android:launchMode="singleTask"
+            android:noHistory="true">           
         </activity>
         <activity
-            android:name=".PortfoliosActivity"            
-            android:label="PortfolioApp">
+            android:name=".SimpleActivity"
+            android:label="Testing">           
+        </activity>
+        <activity
+            android:name=".PortfoliosActivity"
+            android:label="Portfolios">
         </activity>
     </application>
 

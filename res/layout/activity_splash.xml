@@ -6,7 +6,7 @@
     android:gravity="center">
 
     <ImageView
-        android:id="@+id/imageViewLogo"
+        android:contentDescription="AppLogo"        
         android:layout_width="221dp"
         android:layout_height="54dp"
         android:src="@drawable/portfolioapp_logo_451x86" />

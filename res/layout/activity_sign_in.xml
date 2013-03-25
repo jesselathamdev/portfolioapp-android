@@ -1,0 +1,75 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"    
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp" >
+
+    <ImageView
+        android:id="@+id/ivSignInLogo"
+        android:layout_width="221dp"
+        android:layout_height="54dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="AppLogo"      
+        android:src="@drawable/portfolioapp_logo_451x86" />
+
+    <TextView
+        android:id="@+id/tvSignInEmailAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivSignInLogo"        
+        android:text="Email Address"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/etSignInEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginBottom="10dp"
+        android:inputType="textEmailAddress"
+        android:layout_below="@+id/tvSignInEmailAddress">
+
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/tvSignInPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textAppearance="?android:attr/textAppearanceMedium" 
+        android:layout_below="@+id/etSignInEmailAddress" />
+
+    <EditText
+        android:id="@+id/etSignInPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginBottom="10dp"
+        android:inputType="textPassword"
+        android:layout_below="@+id/tvSignInPassword" />
+
+    <Button
+        android:id="@+id/btnSignInSubmit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"        
+        android:layout_below="@+id/etSignInPassword"
+        android:layout_marginBottom="20dp"
+        android:text="Sign In" />
+    
+    <TextView
+        android:id="@+id/tvSignInMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#333333"
+        android:textSize="10dp"
+        android:textStyle="normal"
+        android:typeface="normal" 
+        android:layout_below="@+id/btnSignInSubmit" />
+
+</RelativeLayout>
