@@ -3,10 +3,15 @@ package com.conceptmob.portfolioapp;
 import com.conceptmob.core.BaseActivity;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.utils.Actions;
+import com.conceptmob.portfolioapp.utils.RestResponse;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +28,10 @@ public class SignInActivity extends BaseActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        
+        StrictMode.ThreadPolicy policy = new StrictMode.
+        ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy); 
         
         Log.i(getAppName(), "ACTIVITY: Loaded Sign In");
         
@@ -48,12 +57,13 @@ public class SignInActivity extends BaseActivity {
                if ((email.length() != 0) || (password.length() != 0)) {
                    if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                        
-                       // DO API STUFF HERE!
-                       // IF SUCCESSFUL THEN DO THE fOLLOWING
-                       // wrap 
-                       // Actions actions = new Actions();
-                       // actions.getToken(email, password, "12345");
-                       new Login().execute(email, password);
+                       Actions actions = new Actions();
+                       RestResponse restResponse = new RestResponse();
+                       
+                       restResponse = actions.getAccessToken(email, password);
+                       Log.i("PortfolioApp", "RestResponse output: " + restResponse.getContent());
+                       
+                       // new LoginTask(SignInActivity.this).execute(email, password);
                        
                        // startActivity(new Intent(v.getContext(), SimpleActivity.class));
                        // SignInActivity.this.finish();
@@ -67,16 +77,43 @@ public class SignInActivity extends BaseActivity {
         });
     }
     
-    private class Login extends AsyncTask<String, String, String> {
-        protected String doInBackground(String... params) {
-            Actions actions = new Actions();
-            actions.getToken(params[0], params[1]);
-            
-            return "";
+    private class LoginTask extends AsyncTask<String, Void, RestResponse> {
+        
+        private Activity activity;
+        private Context context;
+        private ProgressDialog progress;
+        
+        public LoginTask(Activity activity) {
+            this.activity = activity;
+            context = activity;
+            progress = new ProgressDialog(context); 
         }
         
-        protected void onPostExecute(String response) {
-            Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+        protected void onPreExecute() {
+            this.progress.setMessage("Signing in");
+            this.progress.show();
+        }
+        
+        @Override
+        protected void onPostExecute(RestResponse restResponse) {
+            if (this.progress.isShowing()) {
+                this.progress.dismiss();
+            }
+            
+            Log.i("PortfolioApp", restResponse.getContent());
+            
+//            if (restResponse.getSuccess()) {
+//                Toast.makeText(getApplicationContext(), "Access token success: ", Toast.LENGTH_LONG).show();
+//            } else {
+//                Toast.makeText(getApplicationContext(), "Access token failure", Toast.LENGTH_LONG).show();
+//            }            
+        }
+        
+        protected RestResponse doInBackground(String... params) {
+            
+            Actions actions = new Actions();
+            
+            return actions.getAccessToken(params[0], params[1]);
         }
     }
 }

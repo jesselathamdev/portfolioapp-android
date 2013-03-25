@@ -1,5 +1,7 @@
 package com.conceptmob.porfolioapp;
 
+import com.conceptmob.portfolioapp.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;

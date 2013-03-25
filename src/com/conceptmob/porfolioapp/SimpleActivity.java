@@ -1,16 +1,12 @@
 package com.conceptmob.porfolioapp;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.utils.PortfolioAppRestClient;
 import com.loopj.android.http.*;
 

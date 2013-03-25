@@ -30,37 +30,42 @@ public class Actions {
     // Public methods
     // --------------------------------------------------------------------------
     
+    
     // Creates a new token based off of the users credentials and an application identifier
-    public String getToken(String email, String password) {
-        final String _response = "";
+    public RestResponse getAccessToken(String email, String password) {
+        
+        final RestResponse restResponse = new RestResponse(); 
         
         RequestParams params = new RequestParams();
         params.put("email", email);
         params.put("password", password);
         params.put("identifier", identifier);
-       
+        
         restClient.post("auth/token/create", params, new AsyncHttpResponseHandler() {
+                        
             @Override
             public void onSuccess(String response) {
-                Log.i("PortfolioAppAPI", "getToken onSuccess: " + response);
                 Log.i("PortfolioAppAPI", "getToken onSuccess complete");
-                _response = response;
+                restResponse.setSuccess(true);
+                restResponse.setContent(response);
             }
             
             @Override
             public void onFailure(Throwable e, String response) {
-                Log.i("PortfolioAppAPI", "getToken onFailure: " + response);
                 Log.i("PortfolioAppAPI", "getToken onFailure complete");
+                restResponse.setSuccess(false);
+                restResponse.setContent(response);
             }
             
             @Override
             public void onFinish() {
-                
-                Log.i("PortfolioAppAPI", "getToken onFinish complete");                
+                Log.i("PortfolioAppAPI", "getToken onFinish complete");
+                Log.i("PortfolioAppAPI", "restResponse within Action class: " + restResponse.getContent());
             }
+            
         });
         
-        return "";
+        return restResponse;
     }
 //        restClient.get("auth/token/create", params, responseHandler)
 //        .get("auth/token/create?email=user1@conceptmob.com&password=access&identifier=12345", null, new AsyncHttpResponseHandler() {
