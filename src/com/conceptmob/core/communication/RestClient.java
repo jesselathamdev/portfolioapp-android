@@ -1,7 +1,17 @@
 package com.conceptmob.core.communication;
 
-// Uses android-async-http base on Apache Http Client (from http://loopj.com/android-async-http/)
-import com.loopj.android.http.*;
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
+
 
 public class RestClient {
     
@@ -12,7 +22,7 @@ public class RestClient {
     
     private String _baseUrl;
     
-    private static AsyncHttpClient client  = new AsyncHttpClient();
+    
     
 
     // --------------------------------------------------------------------------
@@ -41,20 +51,58 @@ public class RestClient {
     // Public methods
     // --------------------------------------------------------------------------
     
-    public void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {         
-        client.get(getAbsoluteUrl(url), params, responseHandler);        
+    public SimpleHttpResponse get(String url) {
+        SimpleHttpResponse simpleResponse = new SimpleHttpResponse();
+        HttpResponse response = null;
+        HttpEntity entity = null;
+        Boolean success = false;
+        
+        // define the client and set the user agent
+        AndroidHttpClient client = AndroidHttpClient.newInstance(System.getProperty("http.agent"));
+        HttpGet request = new HttpGet(getAbsoluteUrl(url));
+        
+        // connect to and get our data from the server
+        try {
+            response = client.execute(request);
+            entity = response.getEntity();
+            success = true;
+        } catch (IOException e) {                       
+            e.printStackTrace();
+        } finally {
+            client.close();
+        }
+        
+        // load up our simple http response instance with results from the response
+        simpleResponse.setSuccess(success);        
+        simpleResponse.setStatusCode(response.getStatusLine().getStatusCode());
+        
+        // convert response body using EntityUtils
+        try {
+            simpleResponse.setContent(EntityUtils.toString(entity));
+            entity.consumeContent();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+        
+        return simpleResponse;
     }
     
-    public void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(getAbsoluteUrl(url), params, responseHandler);        
-    }
     
-    public void put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.put(getAbsoluteUrl(url),  params, responseHandler);
-    }
-    
-    public void delete(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.delete(getAbsoluteUrl(url), responseHandler);
+    public HttpResponse get(String url, HttpParams params) {
+        HttpResponse response = null;
+        
+        AndroidHttpClient client = AndroidHttpClient.newInstance(System.getProperty("http.agent"));
+        HttpGet request = new HttpGet(getAbsoluteUrl(url));
+        
+        try {
+            response = client.execute(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return response;
     }
     
     
@@ -63,7 +111,7 @@ public class RestClient {
     // --------------------------------------------------------------------------
     
     private void setCommon() {
-        client.setUserAgent(System.getProperty("http.agent"));
+        // client.setUserAgent(System.getProperty("http.agent"));
     }
     
     private String getAbsoluteUrl(String relativeUrl) {

@@ -38,38 +38,34 @@ public class SimpleActivity extends BaseActivity {
         
         tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);
         
-        RequestParams params = new RequestParams();
-       
-        RestClient client = new RestClient();
-        
-        client.get("auth/token/create?email=user1@conceptmob.com&password=access&identifier=12345", null, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(String response) {
-                try {                    
-                    message = response;
-                    Log.v("API SUCCESS", "onSuccess: " + response.toString());
-                } catch (Exception e) {
-                    Log.v("API ERROR", "onError: " + e.toString());
-                }                
-            }
-            
-            @Override
-            public void onFailure(Throwable e, String response) {                
-                Log.v("API ERROR", "onFailure: " + response);
-                Log.v("API ERROR", "onFailure: " + e.getMessage());
-                Log.v("API ERROR", "onFailure: " + e.toString());
-                Log.v("API ERROR", "onFailure: " + e.getCause());
-                
-                message = response;                
-            }
-            
-            @Override 
-            public void onFinish() {
-                Log.v("API MESSAGE", "onFinish complete");
-                
-                tvMessage.setText(message);
-            }
-        });
+//        client.get("auth/token/create?email=user1@conceptmob.com&password=access&identifier=12345", null, new AsyncHttpResponseHandler() {
+//            @Override
+//            public void onSuccess(String response) {
+//                try {                    
+//                    message = response;
+//                    Log.v("API SUCCESS", "onSuccess: " + response.toString());
+//                } catch (Exception e) {
+//                    Log.v("API ERROR", "onError: " + e.toString());
+//                }                
+//            }
+//            
+//            @Override
+//            public void onFailure(Throwable e, String response) {                
+//                Log.v("API ERROR", "onFailure: " + response);
+//                Log.v("API ERROR", "onFailure: " + e.getMessage());
+//                Log.v("API ERROR", "onFailure: " + e.toString());
+//                Log.v("API ERROR", "onFailure: " + e.getCause());
+//                
+//                message = response;                
+//            }
+//            
+//            @Override 
+//            public void onFinish() {
+//                Log.v("API MESSAGE", "onFinish complete");
+//                
+//                tvMessage.setText(message);
+//            }
+//        });
    
     }
 }

@@ -1,14 +1,15 @@
 package com.conceptmob.portfolioapp;
 
+import org.apache.http.HttpResponse;
+
 import com.conceptmob.core.BaseActivity;
+import com.conceptmob.core.communication.RestClient;
+import com.conceptmob.core.communication.SimpleHttpResponse;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.utils.Actions;
-import com.conceptmob.portfolioapp.utils.RestResponse;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -29,9 +30,14 @@ public class SignInActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
-        StrictMode.ThreadPolicy policy = new StrictMode.
-        ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy); 
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        
+//        StrictMode.ThreadPolicy policy = new StrictMode.
+//        ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy); 
         
         Log.i(getAppName(), "ACTIVITY: Loaded Sign In");
         
@@ -57,13 +63,7 @@ public class SignInActivity extends BaseActivity {
                if ((email.length() != 0) || (password.length() != 0)) {
                    if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                        
-                       Actions actions = new Actions();
-                       RestResponse restResponse = new RestResponse();
-                       
-                       restResponse = actions.getAccessToken(email, password);
-                       Log.i("PortfolioApp", "RestResponse output: " + restResponse.getContent());
-                       
-                       // new LoginTask(SignInActivity.this).execute(email, password);
+                       new LoginTask(SignInActivity.this).execute(email, password);
                        
                        // startActivity(new Intent(v.getContext(), SimpleActivity.class));
                        // SignInActivity.this.finish();
@@ -77,7 +77,7 @@ public class SignInActivity extends BaseActivity {
         });
     }
     
-    private class LoginTask extends AsyncTask<String, Void, RestResponse> {
+    private class LoginTask extends AsyncTask<String, Void, SimpleHttpResponse> {
         
         private Activity activity;
         private Context context;
@@ -95,12 +95,16 @@ public class SignInActivity extends BaseActivity {
         }
         
         @Override
-        protected void onPostExecute(RestResponse restResponse) {
+        protected void onPostExecute(SimpleHttpResponse response) {
+            Log.i("PortfolioApp", "onPostExecute started");
+            
             if (this.progress.isShowing()) {
                 this.progress.dismiss();
             }
             
-            Log.i("PortfolioApp", restResponse.getContent());
+            Log.i("PortfolioApp", "API Success: " + response.getSuccess());
+            Log.i("PortfolioApp", "API Status Code: " + response.getStatusCode());            
+            Log.i("PortfolioApp", "API Content: " + response.getContent());
             
 //            if (restResponse.getSuccess()) {
 //                Toast.makeText(getApplicationContext(), "Access token success: ", Toast.LENGTH_LONG).show();
@@ -109,11 +113,12 @@ public class SignInActivity extends BaseActivity {
 //            }            
         }
         
-        protected RestResponse doInBackground(String... params) {
+        protected SimpleHttpResponse doInBackground(String... params) {
+            Log.i("PortfolioApp", "doInBackground started");
+            RestClient client = new RestClient("http://10.0.2.2:8000/api/v2/");
+            SimpleHttpResponse response = client.get("auth/token/create");
             
-            Actions actions = new Actions();
-            
-            return actions.getAccessToken(params[0], params[1]);
+            return response;
         }
     }
 }
