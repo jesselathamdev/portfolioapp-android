@@ -1,18 +1,28 @@
 package com.conceptmob.portfolioapp;
 
-import org.apache.http.HttpResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.conceptmob.core.BaseActivity;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+
 import com.conceptmob.core.communication.RestClient;
 import com.conceptmob.core.communication.SimpleHttpResponse;
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.data.AuthTokenContainer;
+import com.conceptmob.portfolioapp.data.ErrorContainer;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,15 +39,6 @@ public class SignInActivity extends BaseActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        
-//        StrictMode.ThreadPolicy policy = new StrictMode.
-//        ThreadPolicy.Builder().permitAll().build();
-//        StrictMode.setThreadPolicy(policy); 
         
         Log.i(getAppName(), "ACTIVITY: Loaded Sign In");
         
@@ -65,8 +66,6 @@ public class SignInActivity extends BaseActivity {
                        
                        new LoginTask(SignInActivity.this).execute(email, password);
                        
-                       // startActivity(new Intent(v.getContext(), SimpleActivity.class));
-                       // SignInActivity.this.finish();
                    } else {
                        Toast.makeText(getApplicationContext(), "Invalid Email Address format", Toast.LENGTH_LONG).show();
                    }                       
@@ -96,27 +95,85 @@ public class SignInActivity extends BaseActivity {
         
         @Override
         protected void onPostExecute(SimpleHttpResponse response) {
-            Log.i("PortfolioApp", "onPostExecute started");
-            
             if (this.progress.isShowing()) {
                 this.progress.dismiss();
             }
             
-            Log.i("PortfolioApp", "API Success: " + response.getSuccess());
-            Log.i("PortfolioApp", "API Status Code: " + response.getStatusCode());            
-            Log.i("PortfolioApp", "API Content: " + response.getContent());
+            // check the success of the request
+            Boolean success = response.getSuccess();
             
-//            if (restResponse.getSuccess()) {
-//                Toast.makeText(getApplicationContext(), "Access token success: ", Toast.LENGTH_LONG).show();
-//            } else {
-//                Toast.makeText(getApplicationContext(), "Access token failure", Toast.LENGTH_LONG).show();
-//            }            
+            if (success) {
+            
+                ObjectMapper mapper = new ObjectMapper();
+                
+                // handle the response, if it was a successful login or unauthorized
+                int statusCode = response.getStatusCode();
+                switch (statusCode) {
+                    case 201:
+                        Log.i("PortfolioApp", "LOGIN: Successful");
+                        
+                        AuthTokenContainer authTokenContainer = null;
+                        try {
+                            authTokenContainer = mapper.readValue(response.getContent(), AuthTokenContainer.class);
+                        } catch (JsonParseException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        } catch (JsonMappingException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        } catch (IOException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                        
+                        // verify that the contents of the response match the header from the server
+                        if (authTokenContainer.response.meta.statusCode == 201) {
+                            // startActivity(new Intent(v.getContext(), SimpleActivity.class));
+                            // SignInActivity.this.finish();
+                        }
+                        
+                        break;
+                    case 401:
+                        Log.i("PortfolioApp", "LOGIN: Unsuccessful");
+                        
+                        ErrorContainer errorContainer = null;
+                        try {
+                            errorContainer = mapper.readValue(response.getContent(), ErrorContainer.class);
+                            Log.i("PortfolioApp", "Jackson: " + errorContainer.toString());
+                        } catch (JsonParseException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (JsonMappingException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        
+                        // verify that the contents of the response match the header from the server
+                        if (errorContainer.response.meta.statusCode == 401) {
+                            Toast.makeText(getApplicationContext(), "Your email address and/or password were incorrect. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                        
+                        break;
+                }
+                                    
+            } else {
+                Toast.makeText(getApplicationContext(), "An error occurred while attempting to sign in.  Please try again.", Toast.LENGTH_LONG).show();
+            }            
         }
         
-        protected SimpleHttpResponse doInBackground(String... params) {
+        protected SimpleHttpResponse doInBackground(String... args) {
             Log.i("PortfolioApp", "doInBackground started");
             RestClient client = new RestClient("http://10.0.2.2:8000/api/v2/");
-            SimpleHttpResponse response = client.get("auth/token/create");
+            
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("email", args[0]));
+            params.add(new BasicNameValuePair("password", args[1]));
+            params.add(new BasicNameValuePair("identifier", "444445551111"));
+            
+            SimpleHttpResponse response = client.post("auth/token/create", params);
             
             return response;
         }

@@ -1,20 +1,11 @@
 package com.conceptmob.portfolioapp;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.conceptmob.core.BaseActivity;
-import com.conceptmob.core.communication.RestClient;
 import com.conceptmob.portfolioapp.R;
-import com.loopj.android.http.*;
 
 
 public class SimpleActivity extends BaseActivity {

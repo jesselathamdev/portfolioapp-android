@@ -1,6 +1,5 @@
 package com.conceptmob.portfolioapp;
 
-import com.conceptmob.core.BaseActivity;
 import com.conceptmob.portfolioapp.R;
 
 import android.content.Intent;
