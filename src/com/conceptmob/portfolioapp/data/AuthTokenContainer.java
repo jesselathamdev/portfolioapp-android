@@ -1,9 +1,11 @@
 package com.conceptmob.portfolioapp.data;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
-public class AuthTokenContainer {
+public class AuthTokenContainer implements Serializable {
     public AuthTokenContainer() { }
     
     @JsonProperty("response")

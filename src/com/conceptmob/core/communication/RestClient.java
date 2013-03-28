@@ -119,7 +119,7 @@ public class RestClient {
             entity = response.getEntity();
             success = true;
         } catch (IOException e) {                       
-            e.printStackTrace();
+            e.printStackTrace();            
         } finally {
             client.close();
         }

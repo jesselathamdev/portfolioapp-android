@@ -1,8 +1,12 @@
 package com.conceptmob.portfolioapp;
 
+import java.util.UUID;
+
+import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +24,8 @@ public class SplashActivity extends BaseActivity {
         
         getWindow().setFormat(PixelFormat.RGBA_8888);
         getWindow().getDecorView().getBackground().setDither(true);
+        
+        setDefaultPreferences();
         
         // Set time to splash out
         final int splashScreenTimer = 1000;
@@ -52,5 +58,15 @@ public class SplashActivity extends BaseActivity {
             }
         };
         splashThread.start();
+    }
+    
+    private void setDefaultPreferences() {
+        // sets default preferences that are used elsewhere in the application such as a unique identifier for API calls 
+        PreferencesSingleton.getInstance().Initialize(getApplicationContext());
+        
+        if (!PreferencesSingleton.getInstance().contains("identifier")) {
+            final UUID identifier = UUID.randomUUID();
+            PreferencesSingleton.getInstance().setPreference("identifier", identifier.toString());
+        }
     }
 }

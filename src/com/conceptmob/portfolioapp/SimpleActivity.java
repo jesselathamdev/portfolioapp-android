@@ -1,62 +1,48 @@
 package com.conceptmob.portfolioapp;
 
+import java.io.IOException;
+
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.data.AuthTokenContainer;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class SimpleActivity extends BaseActivity {
   
     private TextView tvMessage;
-    private String message = "";
+    private TextView tvMessage2;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
       
         Log.i(getAppName(), "SCREEN: Loaded Simple activity.");
-        
-        StrictMode.ThreadPolicy policy = new StrictMode.
-        ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy); 
       
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple);
-            
         
+        Intent intent = getIntent();
+        String authTokenResponse = intent.getStringExtra("authTokenResponse");
         
-        tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);
+        ObjectMapper mapper = new ObjectMapper();
+        AuthTokenContainer authTokenContainer = null;
         
-//        client.get("auth/token/create?email=user1@conceptmob.com&password=access&identifier=12345", null, new AsyncHttpResponseHandler() {
-//            @Override
-//            public void onSuccess(String response) {
-//                try {                    
-//                    message = response;
-//                    Log.v("API SUCCESS", "onSuccess: " + response.toString());
-//                } catch (Exception e) {
-//                    Log.v("API ERROR", "onError: " + e.toString());
-//                }                
-//            }
-//            
-//            @Override
-//            public void onFailure(Throwable e, String response) {                
-//                Log.v("API ERROR", "onFailure: " + response);
-//                Log.v("API ERROR", "onFailure: " + e.getMessage());
-//                Log.v("API ERROR", "onFailure: " + e.toString());
-//                Log.v("API ERROR", "onFailure: " + e.getCause());
-//                
-//                message = response;                
-//            }
-//            
-//            @Override 
-//            public void onFinish() {
-//                Log.v("API MESSAGE", "onFinish complete");
-//                
-//                tvMessage.setText(message);
-//            }
-//        });
-   
+        try {
+            authTokenContainer = mapper.readValue(authTokenResponse, AuthTokenContainer.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);        
+        tvMessage.setText("Hello " + authTokenContainer.response.user.firstName + ", and welcome to your next challenge!");
+        
+        tvMessage2 = (TextView)findViewById(R.id.tvSimpleActivityLabel02);        
+        tvMessage2.setText("Original response: " + authTokenResponse);
     }
 }
