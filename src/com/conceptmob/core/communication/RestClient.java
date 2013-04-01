@@ -65,11 +65,13 @@ public class RestClient {
         
         // define the client and set the user agent
         AndroidHttpClient client = AndroidHttpClient.newInstance(System.getProperty("http.agent"));
+        
         HttpGet request = new HttpGet(getAbsoluteUrl(url));
         
         // connect to and get our data from the server
-        try {
+        try {            
             response = client.execute(request);
+            Log.i("PortfolioAppAPI", "Executing API request");
             entity = response.getEntity();
             success = true;
         } catch (IOException e) {                       
@@ -92,6 +94,7 @@ public class RestClient {
             e.printStackTrace();
         } 
         
+        Log.i("PortfolioAppAPI", "Success: " + simpleResponse.getSuccess() + " | Status Code: " + simpleResponse.getStatusCode() + " | Content: " + simpleResponse.getContent());
         return simpleResponse;
     }
     
@@ -116,6 +119,7 @@ public class RestClient {
         // connect to and get our data from the server
         try {
             response = client.execute(request);
+            Log.i("PortfolioAppAPI", "Executing API request");
             entity = response.getEntity();
             success = true;
         } catch (IOException e) {                       

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.core.BaseActivity;
 import com.conceptmob.portfolioapp.data.AuthTokenContainer;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;

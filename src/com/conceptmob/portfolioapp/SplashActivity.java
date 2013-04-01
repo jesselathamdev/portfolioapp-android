@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.core.BaseActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

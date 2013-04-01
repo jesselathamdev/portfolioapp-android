@@ -1,4 +1,4 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.core;
 
 import android.app.Activity;
 import android.content.Context;

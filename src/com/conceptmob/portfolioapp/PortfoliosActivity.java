@@ -20,11 +20,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.conceptmob.core.communication.RestClient;
+import com.conceptmob.core.communication.SimpleHttpResponse;
+import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.app.Activity;
 import android.app.ListActivity;
+import android.content.Context;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ListAdapter;
@@ -34,17 +39,24 @@ import android.widget.SimpleAdapter;
 
 public class PortfoliosActivity extends ListActivity
 {
-  final String deviceIdentifier = "7ecce5c091a211e29924c82a144ced8c"; 
-  
-  
-	@Override
+    private String authToken;
+    
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
+        Log.i("PortfolioApp", "SCREEN: Loaded Portfolio activity.");
+        
 		super.onCreate(savedInstanceState);
 		
-		new MyAsyncTask().execute("http://10.0.2.2:8000/api/v2/auth/token/create");
-		// new MyAsyncTask().execute("http://10.0.2.2:8000/api/v2/portfolios/");
-		// new MyAsyncTask().execute("http://portfolioapp.conceptmob.com/api/v2/portfolios/");	    
-	}
+		// try and pick up the authToken from shared preferences
+		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
+		
+		Log.i("PortfolioApp", authToken);
+		
+		// make sure that there's a valid authToken
+		if (authToken != null) {
+		    new PortfolioTask().execute();
+		}
+    }
 	
 
 	@Override
@@ -55,22 +67,43 @@ public class PortfoliosActivity extends ListActivity
 	}
 	
 	
-	class MyAsyncTask extends AsyncTask<String, Integer, ArrayList<HashMap<String, String>> > {
-	    ArrayList<HashMap<String, String>> portfoliosList;
+	private class PortfolioTask extends AsyncTask<String, Void, SimpleHttpResponse> {
+	    
+	    private Exception e = null;
+	    
+	    protected PortfolioTask() {}
+	    
+	    protected void onPreExecute() {}
 	    
 	    @Override
-	    protected ArrayList<HashMap<String, String>> doInBackground(String... params) {
-	        portfoliosList = processPortfolioJSON(getJSONfromURL(params[0], "POST", "item"));
+	    protected SimpleHttpResponse doInBackground(String... params) {
+	        Log.i("PortfolioApp", "doInBackground started for Portfolios");
 	        
-	        return portfoliosList;
+	        try {
+	            RestClient client = new RestClient("http://10.0.2.2:8000/api/v2/");
+	            
+	            return client.get("portfolios?token=" + authToken);
+	            
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            this.e = e;
+	        }
+	        
+	        return null;
 	    }
 	    
+	    
 	    @Override 
-	    protected void onPostExecute(ArrayList<HashMap<String, String>> result) {
-	        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, portfoliosList, R.layout.list_portfolios, new String[] { "name", "portfolio_id" }, new int[] { R.id.item_title, R.id.item_subtitle });
-	        PortfoliosActivity.this.setListAdapter(adapter);
-	        final ListView lv = getListView();
-	        lv.setTextFilterEnabled(true);
+	    protected void onPostExecute(SimpleHttpResponse response) {
+	        
+	        if (e == null) {
+	            Log.i("PortfolioApp", "Portfolios loaded: " + response.getContent());
+	        }
+	        
+//	        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, portfoliosList, R.layout.list_portfolios, new String[] { "name", "portfolio_id" }, new int[] { R.id.item_title, R.id.item_subtitle });
+//	        PortfoliosActivity.this.setListAdapter(adapter);
+//	        final ListView lv = getListView();
+//	        lv.setTextFilterEnabled(true);
 	        
 	    }
 	}
