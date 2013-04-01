@@ -5,22 +5,28 @@ import java.util.UUID;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.core.BaseApplication;
 
+import android.app.Application;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
 
 public class SplashActivity extends BaseActivity {
 
+    private BaseApplication app;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        
-        Log.i(getAppName(), "ACTIVITY: Loaded Splash");
-        
-        // set up the activity and associated layout
         super.onCreate(savedInstanceState);
+        
+        // pull app instance details from BaseApplication
+        app = (BaseApplication)this.getApplication();
+        
+        Log.i(app.TAG, "ACTIVITY: Loaded Splash");
+        
+        // set up the associated layout
         setContentView(R.layout.activity_splash);
         
         getWindow().setFormat(PixelFormat.RGBA_8888);

@@ -10,7 +10,8 @@ import android.util.Log;
 
 public class BaseApplication extends Application {
 
-    String TAG = "PortfolioApp";
+    public String TAG = "PortfolioApp";
+    public String BASE_URL = "http://10.0.2.2:8000/api/v2/";
     private AndroidHttpClient httpClient;
     
     

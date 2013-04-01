@@ -24,6 +24,7 @@ import com.conceptmob.core.communication.RestClient;
 import com.conceptmob.core.communication.SimpleHttpResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.core.BaseApplication;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,13 +40,17 @@ import android.widget.SimpleAdapter;
 
 public class PortfoliosActivity extends ListActivity
 {
+    private BaseApplication app;
     private String authToken;
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
-        Log.i("PortfolioApp", "SCREEN: Loaded Portfolio activity.");
+        super.onCreate(savedInstanceState);
+		
+        // pull app instance details from BaseApplication
+        app = (BaseApplication)this.getApplication();
         
-		super.onCreate(savedInstanceState);
+        Log.i(app.TAG, "SCREEN: Loaded Portfolio activity.");
 		
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
