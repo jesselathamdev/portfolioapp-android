@@ -5,12 +5,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -18,6 +20,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import com.conceptmob.core.communication.ServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseActivity;
@@ -61,8 +64,6 @@ public class SignInActivity extends Activity {
         // set up the associated layout
         setContentView(R.layout.activity_sign_in);
 
-        httpClient = app.getHttpClient();
-        
         // get references to controls in layout
         etEmail = (EditText)findViewById(R.id.etSignInEmailAddress);
         etPassword = (EditText)findViewById(R.id.etSignInPassword);
@@ -95,7 +96,7 @@ public class SignInActivity extends Activity {
     }
     
     
-    private class LoginTask extends AsyncTask<String, Void, HttpResponse> {
+    private class LoginTask extends AsyncTask<String, Void, ServerResponse> {
         
         private Exception e = null;
         private Activity activity;
@@ -115,14 +116,18 @@ public class SignInActivity extends Activity {
         }
         
         
-        protected HttpResponse doInBackground(String... args) {
+        protected ServerResponse doInBackground(String... args) {
             Log.i(app.TAG, "doInBackground started for Login");
             
+            ServerResponse serverResponse = null;
+            
             try {
-                HttpPost request = new HttpPost(app.BASE_URL + "auth/token/create");
+                HttpPost httpRequest = new HttpPost(app.BASE_URL + "auth/token/create");
                 HttpParams httpParams = new BasicHttpParams();
+                HttpConnectionParams.setConnectionTimeout(httpParams, 8000);  // 8 seconds
                 HttpConnectionParams.setSoTimeout(httpParams, 60000);  // 1 minute
-                HttpResponse response = null;
+                HttpResponse httpResponse = null;                
+                HttpEntity httpEntity = null;
                 
                 // put the parameters together required for the post
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -131,16 +136,29 @@ public class SignInActivity extends Activity {
                 params.add(new BasicNameValuePair("identifier", PreferencesSingleton.getInstance().getPreference("identifier", "")));
                 
                 // set up request with header params (httpParams) and other params
-                request.setParams(httpParams);
-                request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+                httpRequest.setParams(httpParams);
+                httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
                 
                 // Log a few details
                 Log.i(app.TAG, "Executing HTTP request (Login)");
-                Log.v("connection timeout", String.valueOf(HttpConnectionParams.getConnectionTimeout(httpParams)));
-                Log.v("socket timeout", String.valueOf(HttpConnectionParams.getSoTimeout(httpParams)));
+                Log.i(app.TAG, "connection timeout: " + String.valueOf(HttpConnectionParams.getConnectionTimeout(httpParams)));
+                Log.i(app.TAG, "socket timeout: " + String.valueOf(HttpConnectionParams.getSoTimeout(httpParams)));
                 
-                // execute request and return response                
-                return httpClient.execute(request);
+                // execute request and handle return response, returning it a custom server response object (due to potentially long running EntityUtils)
+                httpResponse = httpClient.execute(httpRequest);
+                serverResponse = new ServerResponse();
+                serverResponse.setStatusCode(httpResponse.getStatusLine().getStatusCode());
+                httpEntity = httpResponse.getEntity();
+                serverResponse.setContent(EntityUtils.toString(httpEntity));
+                if (httpEntity != null) {
+                    try {
+                        httpEntity.consumeContent();
+                    } catch (IOException e) {
+                        Log.e(app.TAG, "", e);
+                    }
+                }                
+                serverResponse.setSuccess(true);
+                
             } catch (UnsupportedEncodingException e) {
                 this.e = e;
                 // covers UrlEncodedFormEntity issues
@@ -157,45 +175,27 @@ public class SignInActivity extends Activity {
                 this.e = e;
                 // covers all others
                 e.printStackTrace();
+            } finally {
+                System.gc();
             }
-           
-            return null;
+            
+            return serverResponse;
         }
         
         
         @Override
-        protected void onPostExecute(HttpResponse response) {
+        protected void onPostExecute(ServerResponse serverResponse) {
             if (progress.isShowing()) {
                 progress.dismiss();
             }
             
-            Log.i(app.TAG, "in onPostExecute 1: " + response.toString());
-            
             // check to see if an exception came back, if not, carry on
             if (e == null) {                
                 // check the success of the request, do we have a response?
-                if (response != null) {
+                if (serverResponse != null) {
                     // pull out details from the response
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    String content = "";
-
-                    Log.i(app.TAG, "in onPostExecute 2");
-                    
-                    try {
-                        Log.i(app.TAG, "in onPostExecute 3");
-                        content = EntityUtils.toString(response.getEntity());
-                        Log.i(app.TAG, "in onPostExecute 4a");
-                        response.getEntity().consumeContent();  // ensure that the consumption of the entity is closed out
-                        Log.i(app.TAG, "in onPostExecute 4b");
-                    } catch (ParseException e) {
-                        Log.e(app.TAG, "Error parsing response");
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        Log.e(app.TAG, "IO Error");
-                        e.printStackTrace();
-                    } 
-                    
-                    Log.i(app.TAG, "in onPostExecute 5");
+                    int statusCode = serverResponse.getStatusCode();
+                    String content = serverResponse.getContent();
                     
                     switch (statusCode) {
                         case 201:
@@ -204,10 +204,8 @@ public class SignInActivity extends Activity {
                             // splash a toast up to the user
                             Toast.makeText(this.context, "Sign in successful", Toast.LENGTH_LONG).show();
                             
-                            Log.i(app.TAG, "in onPostExecute 6");
-                            
-                            // parse the response for the auth token just received
-                            String authToken = "";
+                            // parse the response for the auth token just received, could just pull this out for simplicity and speed and use a few JSONOjbect calls...
+                            // all we're really doing is getting the token value out in order to store
                             ObjectMapper mapper = new ObjectMapper();
                             AuthTokenContainer authTokenContainer = null;
                             
@@ -243,5 +241,11 @@ public class SignInActivity extends Activity {
                 e.printStackTrace();
             }
         }
+    }
+    
+    
+    public static void safeClose(HttpClient client) {
+        if (client != null && client.getConnectionManager() != null)
+            client.getConnectionManager().shutdown();
     }
 }

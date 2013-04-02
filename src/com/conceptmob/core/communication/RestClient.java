@@ -57,8 +57,8 @@ public class RestClient {
     // Public methods
     // --------------------------------------------------------------------------
     
-    public SimpleHttpResponse get(String url) {
-        SimpleHttpResponse simpleResponse = new SimpleHttpResponse();
+    public ServerResponse get(String url) {
+        ServerResponse simpleResponse = new ServerResponse();
         HttpResponse response = null;
         HttpEntity entity = null;
         Boolean success = false;
@@ -99,8 +99,8 @@ public class RestClient {
     }
     
     
-    public SimpleHttpResponse post(String url, List<NameValuePair> params) {
-        SimpleHttpResponse simpleResponse = new SimpleHttpResponse();
+    public ServerResponse post(String url, List<NameValuePair> params) {
+        ServerResponse simpleResponse = new ServerResponse();
         HttpResponse response = null;
         HttpEntity entity = null;
         Boolean success = false;
