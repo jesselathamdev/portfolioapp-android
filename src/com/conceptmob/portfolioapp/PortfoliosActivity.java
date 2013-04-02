@@ -1,19 +1,9 @@
 package com.conceptmob.portfolioapp;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -23,16 +13,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.conceptmob.core.communication.HttpClientProvider;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
@@ -48,6 +34,7 @@ import android.view.Menu;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 
 public class PortfoliosActivity extends ListActivity
@@ -73,7 +60,7 @@ public class PortfoliosActivity extends ListActivity
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
-		    new PortfolioTask().execute(authToken, identifier);
+		    new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
 		}
     }
 	
@@ -90,9 +77,12 @@ public class PortfoliosActivity extends ListActivity
 	    
 	    private HttpClient httpClient;
 	    private Exception e = null;
+        private Activity activity;
+        private Context context; 
 	    
 	    
-	    protected PortfolioTask() {
+	    protected PortfolioTask(Activity activity) {
+            this.context = activity;
 	        httpClient = app.getHttpClient();
 	    }
 	    
@@ -126,8 +116,10 @@ public class PortfoliosActivity extends ListActivity
                 serverResponse = new SimpleServerResponse();
                 serverResponse.setStatusCode(httpResponse.getStatusLine().getStatusCode());
                 httpEntity = httpResponse.getEntity();
-                serverResponse.setContent(EntityUtils.toString(httpEntity));
-                httpEntity.consumeContent();
+                serverResponse.setContent(EntityUtils.toString(httpEntity));                
+                if (httpEntity != null) {
+                    httpEntity.consumeContent();
+                }
                 serverResponse.setSuccess(true);
                 
 	        } catch (UnsupportedEncodingException e) {
@@ -155,15 +147,57 @@ public class PortfoliosActivity extends ListActivity
 	    @Override 
 	    protected void onPostExecute(SimpleServerResponse serverResponse) {
 	        
-	        if (e == null) {
-	            Log.i(app.TAG, "Portfolios loaded: " + serverResponse.getContent());
-	        }
-	        
-//	        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, portfoliosList, R.layout.list_portfolios, new String[] { "name", "portfolio_id" }, new int[] { R.id.item_title, R.id.item_subtitle });
-//	        PortfoliosActivity.this.setListAdapter(adapter);
-//	        final ListView lv = getListView();
-//	        lv.setTextFilterEnabled(true);
-	        
+	        // check to see if an exception came back and check the success of the request, do we have a response?
+            if (e == null && serverResponse != null) {
+                // pull out details from the response
+                int statusCode = serverResponse.getStatusCode();
+                String content = serverResponse.getContent();
+                
+                Log.i(app.TAG, "Status Code: " + Integer.toString(statusCode));
+                Log.i(app.TAG, "Response: " + content);
+                
+                switch (statusCode) {
+                    case 201:
+                        Log.i(app.TAG, "HTTP 200: Portfolios retrieved successfully");
+                        
+                        Log.i(app.TAG, "Response: " + content);
+//                        ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
+//                        
+//                        try {
+//                            JSONObject json = new JSONObject(content);
+//                            JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
+//                            
+//                            for (int i = 0; i < portfolios.length(); i++) {
+//                                HashMap<String, String> map = new HashMap<String, String>();
+//                                JSONObject p = portfolios.getJSONObject(i);
+//                                map.put("id", String.valueOf(i));
+//                                map.put("name", p.getString("name"));
+//                                map.put("portfolio_id", p.getString("id".toString()));
+//                                portfoliosList.add(map);
+//                            }           
+//                        } catch (JSONException e) {
+//                            Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
+//                        }
+                        
+//                        ListAdapter adapter = new SimpleAdapter(activity, 
+//                                portfoliosList, 
+//                                R.layout.list_portfolios, 
+//                                new String[] { "name", "portfolio_id" }, 
+//                                new int[] { R.id.item_title, R.id.item_subtitle });
+//                        setListAdapter(adapter);
+//                        final ListView lv = getListView();
+//                        lv.setTextFilterEnabled(true);
+                        
+                        break;
+                    case 401:
+                        Log.i(app.TAG, "HTTP 401: Authentication unsuccessful");
+                        
+                        break;
+                    default:
+                        Log.e(app.TAG, "There was an error contacting the server.");
+                        Toast.makeText(getApplicationContext(), "An error occurred while processing your request.  Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
 	    }
 	}
 	
@@ -189,128 +223,4 @@ public class PortfoliosActivity extends ListActivity
 	    
         return portfoliosList;
 	}
-	
-	
-	private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
-	{
-	    StringBuilder result = new StringBuilder();
-	    boolean first = true;
-
-	    for (NameValuePair pair : params)
-	    {
-	        if (first)
-	            first = false;
-	        else
-	            result.append("&");
-
-	        result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
-	        result.append("=");
-	        result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
-	    }
-
-	    return result.toString();
-	}
-	
-	
-	public static String getResultFromApi(String url, String method, String... args) {
-	    URL _url = null;
-      HttpURLConnection conn = null;
-      InputStream _iS = null;
-      InputStreamReader _iSR = null;
-      StringBuilder _result = new StringBuilder();
-      
-      try {
-          _url = new URL(url); 
-          conn = (HttpURLConnection)_url.openConnection();
-          conn.setReadTimeout(10000);
-          conn.setConnectTimeout(15000);
-                    
-          conn.setRequestMethod(method);
-          conn.setDoInput(true);
-          conn.setDoOutput(true);
-          
-          List<NameValuePair> params = new ArrayList<NameValuePair>();
-          params.add(new BasicNameValuePair("email", "user@conceptmob.com"));
-          params.add(new BasicNameValuePair("password", "access"));
-          params.add(new BasicNameValuePair("identifier", "aabbcc"));
-          
-          OutputStream os = conn.getOutputStream();
-          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-          writer.write(getQuery(params));
-          writer.close();
-          os.close();
-          
-          _iS = new BufferedInputStream(conn.getInputStream());
-          _iSR = new InputStreamReader(_iS);
-          
-          int data = _iSR.read();
-          while (data != -1) {
-              char current = (char) data;
-              data = _iSR.read();
-              _result.append(current);
-          }
-      } catch (Exception e) {            
-          Log.e("Downloader", "Error getting data from server: " + e.toString());
-      } finally {
-          conn.disconnect();
-      }    
-      
-	    return _result.toString();
-	}
-	
-
-	public static JSONObject getJSONfromURL(String url, String method, String... args) {
-  	  URL _url = null;
-      HttpURLConnection conn = null;
-      InputStream _iS = null;
-      InputStreamReader _iSR = null;
-      StringBuilder _result = new StringBuilder();
-      
-      try {
-          _url = new URL(url); 
-          conn = (HttpURLConnection)_url.openConnection();
-          conn.setReadTimeout(10000);
-          conn.setConnectTimeout(15000);
-                    
-          conn.setRequestMethod(method);
-          conn.setDoInput(true);
-          conn.setDoOutput(true);
-          
-          List<NameValuePair> params = new ArrayList<NameValuePair>();
-          params.add(new BasicNameValuePair("email", "user@conceptmob.com"));
-          params.add(new BasicNameValuePair("password", "access"));
-          params.add(new BasicNameValuePair("identifier", "aabbcc"));
-          
-          OutputStream os = conn.getOutputStream();
-          BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-          writer.write(getQuery(params));
-          writer.close();
-          os.close();
-          
-          _iS = new BufferedInputStream(conn.getInputStream());
-          _iSR = new InputStreamReader(_iS);
-          
-          int data = _iSR.read();
-          while (data != -1) {
-              char current = (char) data;
-              data = _iSR.read();
-              _result.append(current);
-          }
-      } catch (Exception e) {            
-          Log.e("Downloader", "Error getting data from server: " + e.toString());
-      } finally {
-          conn.disconnect();
-      }    
-      
-      JSONObject _responseJO = null;
-      
-      try {
-          _responseJO = new JSONObject(_result.toString());            
-      } catch (JSONException e) {
-          Log.e("log_tag", "Error parsing data from server: " + e.toString());
-      }
-	    
-	    return _responseJO;
-	}
-
 }

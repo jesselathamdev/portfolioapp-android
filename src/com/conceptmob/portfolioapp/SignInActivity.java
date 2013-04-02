@@ -139,7 +139,9 @@ public class SignInActivity extends Activity {
                 serverResponse.setStatusCode(httpResponse.getStatusLine().getStatusCode());
                 httpEntity = httpResponse.getEntity();
                 serverResponse.setContent(EntityUtils.toString(httpEntity));
-                httpEntity.consumeContent();             
+                if (httpEntity != null) {
+                    httpEntity.consumeContent();
+                }          
                 serverResponse.setSuccess(true);
                 
             } catch (UnsupportedEncodingException e) {
@@ -170,52 +172,47 @@ public class SignInActivity extends Activity {
                 progress.dismiss();
             }
             
-            // check to see if an exception came back, if not, carry on
-            if (e == null) {                
-                // check the success of the request, do we have a response?
-                if (serverResponse != null) {
-                    // pull out details from the response
-                    int statusCode = serverResponse.getStatusCode();
-                    String content = serverResponse.getContent();
-                    
-                    switch (statusCode) {
-                        case 201:
-                            Log.i(app.TAG, "HTTP 201: Auth Token creation successful");
-                            
-                            // splash a toast up to the user
-                            Toast.makeText(this.context, "Sign in successful", Toast.LENGTH_LONG).show();
-                            
-                            // parse the response for the auth token just received, could just pull this out for simplicity and speed and use a few JSONOjbect calls...
-                            // all we're really doing is getting the token value out in order to store
-                            ObjectMapper mapper = new ObjectMapper();
-                            AuthTokenContainer authTokenContainer = null;
-                            
-                            try {
-                                authTokenContainer = mapper.readValue(content, AuthTokenContainer.class);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            
-                            // store the auth token that was just received
-                            PreferencesSingleton.getInstance().setPreference("authToken", authTokenContainer.response.token);
-                            
-                            Intent intent = new Intent(this.context, PortfoliosActivity.class);
-                            intent.putExtra("authTokenResponse", content);
-                            this.context.startActivity(intent);
-                            SignInActivity.this.finish();
-                            
-                            break;
-                        case 401:
-                            Log.i(app.TAG, "HTTP 401: Auth Token creation unsuccessful");
-                            
-                            break;
-                        default:
-                            Log.e(app.TAG, "There was an error contacting the server.");
-                            Toast.makeText(getApplicationContext(), "An error occurred while attempting to sign in.  Please try again.", Toast.LENGTH_LONG).show();
-                    }
-                    
-                } else {
-                    Log.e(app.TAG, "There was an unexpected error.");
+            // check to see if an exception came back and check the success of the request, do we have a response?
+            if (e == null && serverResponse != null) {                
+
+                // pull out details from the response
+                int statusCode = serverResponse.getStatusCode();
+                String content = serverResponse.getContent();
+                
+                switch (statusCode) {
+                    case 201:
+                        Log.i(app.TAG, "HTTP 201: Auth Token creation successful");
+                        
+                        // splash a toast up to the user
+                        Toast.makeText(this.context, "Sign in successful", Toast.LENGTH_LONG).show();
+                        
+                        // parse the response for the auth token just received, could just pull this out for simplicity and speed and use a few JSONOjbect calls...
+                        // all we're really doing is getting the token value out in order to store
+                        ObjectMapper mapper = new ObjectMapper();
+                        AuthTokenContainer authTokenContainer = null;
+                        
+                        try {
+                            authTokenContainer = mapper.readValue(content, AuthTokenContainer.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        // store the auth token that was just received
+                        PreferencesSingleton.getInstance().setPreference("authToken", authTokenContainer.response.token);
+                        
+                        Intent intent = new Intent(this.context, PortfoliosActivity.class);
+                        intent.putExtra("authTokenResponse", content);
+                        this.context.startActivity(intent);
+                        SignInActivity.this.finish();
+                        
+                        break;
+                    case 401:
+                        Log.i(app.TAG, "HTTP 401: Auth Token creation unsuccessful");
+                        
+                        break;
+                    default:
+                        Log.e(app.TAG, "There was an error contacting the server.");
+                        Toast.makeText(getApplicationContext(), "An error occurred while attempting to sign in.  Please try again.", Toast.LENGTH_LONG).show();
                 }
             } else {
                 Log.e(app.TAG, "Error in doInBackground task");

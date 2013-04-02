@@ -44,8 +44,6 @@ public class BaseApplication extends Application {
         ClientConnectionManager connManager = httpClient.getConnectionManager();
         SchemeRegistry schemeReg = connManager.getSchemeRegistry();
         
-        // set extra detfaults here such as timeouts etc
-        
         for (String scheme : schemeReg.getSchemeNames()) {
             Log.v(TAG,"Scheme: " + scheme
                 + ", port: " + schemeReg.getScheme(scheme).getDefaultPort()
