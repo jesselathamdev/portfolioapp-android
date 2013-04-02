@@ -2,17 +2,19 @@ package com.conceptmob.portfolioapp.core;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 
+import com.conceptmob.core.communication.HttpClientProvider;
+
 import android.app.Application;
-import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 public class BaseApplication extends Application {
 
     public String TAG = "PortfolioApp";
     public String BASE_URL = "http://10.0.2.2:8000/api/v2/";
-    private AndroidHttpClient httpClient;
+    private DefaultHttpClient httpClient;
     
     
     @Override
@@ -36,8 +38,8 @@ public class BaseApplication extends Application {
     }
     
     
-    private AndroidHttpClient createHttpClient() {
-        AndroidHttpClient httpClient = AndroidHttpClient.newInstance(System.getProperty("http.agent"));
+    private DefaultHttpClient createHttpClient() {
+        DefaultHttpClient httpClient = HttpClientProvider.newInstance(System.getProperty("http.agent"));
         
         ClientConnectionManager connManager = httpClient.getConnectionManager();
         SchemeRegistry schemeReg = connManager.getSchemeRegistry();
@@ -62,7 +64,7 @@ public class BaseApplication extends Application {
     }
     
     
-    public AndroidHttpClient getHttpClient() {
+    public DefaultHttpClient getHttpClient() {
         if (httpClient == null)
             httpClient = createHttpClient();
         return httpClient;
@@ -74,9 +76,6 @@ public class BaseApplication extends Application {
             if (httpClient.getConnectionManager() != null) {
                 httpClient.getConnectionManager().shutdown();
             }
-            
-            httpClient.close();
-            httpClient = null;
         }
     }
 

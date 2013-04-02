@@ -8,22 +8,16 @@ import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
-import com.conceptmob.core.communication.ServerResponse;
+import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.core.BaseActivity;
 import com.conceptmob.portfolioapp.core.BaseApplication;
 import com.conceptmob.portfolioapp.data.AuthTokenContainer;
 
@@ -44,9 +38,7 @@ import android.widget.Toast;
 
 public class SignInActivity extends Activity {
     
-    private BaseApplication app;
-    private HttpClient httpClient;
-    
+    private BaseApplication app;    
     private EditText etEmail;
     private EditText etPassword;
     private Button btnSignIn;
@@ -63,7 +55,7 @@ public class SignInActivity extends Activity {
         
         // set up the associated layout
         setContentView(R.layout.activity_sign_in);
-
+        
         // get references to controls in layout
         etEmail = (EditText)findViewById(R.id.etSignInEmailAddress);
         etPassword = (EditText)findViewById(R.id.etSignInPassword);
@@ -96,8 +88,9 @@ public class SignInActivity extends Activity {
     }
     
     
-    private class LoginTask extends AsyncTask<String, Void, ServerResponse> {
+    private class LoginTask extends AsyncTask<String, Void, SimpleServerResponse> {
         
+        private HttpClient httpClient;
         private Exception e = null;
         private Activity activity;
         private Context context;        
@@ -106,7 +99,8 @@ public class SignInActivity extends Activity {
         
         protected LoginTask(Activity activity) {
             this.context = activity;
-            progress = new ProgressDialog(this.context); 
+            progress = new ProgressDialog(this.context);
+            httpClient = app.getHttpClient();
         }
         
         
@@ -116,47 +110,36 @@ public class SignInActivity extends Activity {
         }
         
         
-        protected ServerResponse doInBackground(String... args) {
+        protected SimpleServerResponse doInBackground(String... args) {
             Log.i(app.TAG, "doInBackground started for Login");
             
-            ServerResponse serverResponse = null;
+            SimpleServerResponse serverResponse = null;
             
-            try {
-                HttpPost httpRequest = new HttpPost(app.BASE_URL + "auth/token/create");
-                HttpParams httpParams = new BasicHttpParams();
-                HttpConnectionParams.setConnectionTimeout(httpParams, 8000);  // 8 seconds
-                HttpConnectionParams.setSoTimeout(httpParams, 60000);  // 1 minute
-                HttpResponse httpResponse = null;                
-                HttpEntity httpEntity = null;
-                
-                // put the parameters together required for the post
+            try {                
+                // build the encoded parameters required for the request
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("email", args[0]));
                 params.add(new BasicNameValuePair("password", args[1]));
                 params.add(new BasicNameValuePair("identifier", PreferencesSingleton.getInstance().getPreference("identifier", "")));
                 
-                // set up request with header params (httpParams) and other params
-                httpRequest.setParams(httpParams);
+                // build the request
+                HttpPost httpRequest = new HttpPost(app.BASE_URL + "auth/token/create");                
+                HttpResponse httpResponse = null;                
+                HttpEntity httpEntity = null;
+                
+                // include the extra request parameters for post
                 httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
                 
                 // Log a few details
                 Log.i(app.TAG, "Executing HTTP request (Login)");
-                Log.i(app.TAG, "connection timeout: " + String.valueOf(HttpConnectionParams.getConnectionTimeout(httpParams)));
-                Log.i(app.TAG, "socket timeout: " + String.valueOf(HttpConnectionParams.getSoTimeout(httpParams)));
                 
                 // execute request and handle return response, returning it a custom server response object (due to potentially long running EntityUtils)
                 httpResponse = httpClient.execute(httpRequest);
-                serverResponse = new ServerResponse();
+                serverResponse = new SimpleServerResponse();
                 serverResponse.setStatusCode(httpResponse.getStatusLine().getStatusCode());
                 httpEntity = httpResponse.getEntity();
                 serverResponse.setContent(EntityUtils.toString(httpEntity));
-                if (httpEntity != null) {
-                    try {
-                        httpEntity.consumeContent();
-                    } catch (IOException e) {
-                        Log.e(app.TAG, "", e);
-                    }
-                }                
+                httpEntity.consumeContent();             
                 serverResponse.setSuccess(true);
                 
             } catch (UnsupportedEncodingException e) {
@@ -175,16 +158,14 @@ public class SignInActivity extends Activity {
                 this.e = e;
                 // covers all others
                 e.printStackTrace();
-            } finally {
-                System.gc();
-            }
+            } 
             
             return serverResponse;
         }
         
         
         @Override
-        protected void onPostExecute(ServerResponse serverResponse) {
+        protected void onPostExecute(SimpleServerResponse serverResponse) {
             if (progress.isShowing()) {
                 progress.dismiss();
             }
@@ -241,11 +222,5 @@ public class SignInActivity extends Activity {
                 e.printStackTrace();
             }
         }
-    }
-    
-    
-    public static void safeClose(HttpClient client) {
-        if (client != null && client.getConnectionManager() != null)
-            client.getConnectionManager().shutdown();
     }
 }

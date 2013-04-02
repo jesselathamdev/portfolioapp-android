@@ -18,6 +18,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 public class HttpClientProvider {
     // borrowed from http://stackoverflow.com/questions/9505358/android-httpclient-hangs-on-second-request-to-the-server-connection-timed-out
     // connection was hanging and wouldn't allow a second grab
+    // allows us to be a little more explicit with the connection properties rather than wrapping in AndroidHttpClient
     
     // Default connection and socket timeout of 60 seconds. Tweak to taste.
     private static final int SOCKET_OPERATION_TIMEOUT = 60 * 1000;
@@ -27,7 +28,7 @@ public class HttpClientProvider {
         HttpParams params = new BasicHttpParams();
 
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setContentCharset(params, HTTP.DEFAULT_CONTENT_CHARSET);
+        HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
         HttpProtocolParams.setUseExpectContinue(params, true);
 
         HttpConnectionParams.setStaleCheckingEnabled(params, false);

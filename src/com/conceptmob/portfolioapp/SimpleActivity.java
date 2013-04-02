@@ -1,7 +1,5 @@
 package com.conceptmob.portfolioapp;
 
-import java.io.IOException;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,8 +9,6 @@ import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseActivity;
 import com.conceptmob.portfolioapp.core.BaseApplication;
 import com.conceptmob.portfolioapp.data.AuthTokenContainer;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 

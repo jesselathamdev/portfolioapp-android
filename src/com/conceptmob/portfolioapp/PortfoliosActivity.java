@@ -13,23 +13,27 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.conceptmob.core.communication.RestClient;
-import com.conceptmob.core.communication.ServerResponse;
+import com.conceptmob.core.communication.HttpClientProvider;
+import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseApplication;
@@ -49,8 +53,9 @@ import android.widget.SimpleAdapter;
 public class PortfoliosActivity extends ListActivity
 {
     private BaseApplication app;
-    private HttpClient httpClient;
     private String authToken;
+    private String identifier;
+    
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,18 +65,15 @@ public class PortfoliosActivity extends ListActivity
         app = (BaseApplication)this.getApplication();
         
         Log.i(app.TAG, "SCREEN: Loaded Portfolio activity.");
-		
-        // get our httpClient from the base application
-        httpClient = app.getHttpClient();
         
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
-		
-		Log.i("PortfolioApp", authToken);
+		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
 		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
-		    new PortfolioTask().execute();
+            // do the main work in an asynctask		    
+		    new PortfolioTask().execute(authToken, identifier);
 		}
     }
 	
@@ -84,42 +86,50 @@ public class PortfoliosActivity extends ListActivity
 	}
 	
 	
-	private class PortfolioTask extends AsyncTask<String, Void, ServerResponse> {
+	private class PortfolioTask extends AsyncTask<String, Void, SimpleServerResponse> {
 	    
+	    private HttpClient httpClient;
 	    private Exception e = null;
 	    
-	    protected PortfolioTask() {}
+	    
+	    protected PortfolioTask() {
+	        httpClient = app.getHttpClient();
+	    }
+	    
 	    
 	    protected void onPreExecute() {}
 	    
+	    
 	    @Override
-	    protected ServerResponse doInBackground(String... params) {
+	    protected SimpleServerResponse doInBackground(String... args) {
 	        Log.i(app.TAG, "doInBackground started for Portfolios");
+	    
+	        SimpleServerResponse serverResponse = null;
 	        
 	        try {
-	            HttpGet httpRequest = new HttpGet(app.BASE_URL + "portfolios");
-	            HttpParams httpParams = new BasicHttpParams();
-	            HttpConnectionParams.setSoTimeout(httpParams, 60000);  // 1 minute
-	            HttpResponse httpResponse = null;
-	            ServerResponse serverResponse = null;
-	            
-	            // set up request with header params (httpParams)
-                httpRequest.setParams(httpParams);
+	            // build the encoded parameters required for the request
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("token", args[0]));
+                params.add(new BasicNameValuePair("identifier", args[1]));
                 
-             // Log a few details
-                Log.i(app.TAG, "Executing HTTP request (Login)");
-                Log.i(app.TAG, "connection timeout: " + String.valueOf(HttpConnectionParams.getConnectionTimeout(httpParams)));
-                Log.i(app.TAG, "socket timeout: " + String.valueOf(HttpConnectionParams.getSoTimeout(httpParams)));
+                String paramString = URLEncodedUtils.format(params, HTTP.UTF_8);
 	            
+	            HttpGet httpRequest = new HttpGet(app.BASE_URL + "portfolios?" + paramString);	            
+	            HttpResponse httpResponse = null;
+	            HttpEntity httpEntity = null;
+	            
+                // Log a few details
+                Log.i(app.TAG, "Executing HTTP request (Login)");
+                
                 // execute request and handle return response, returning it a custom server response object (due to potentially long running EntityUtils)
                 httpResponse = httpClient.execute(httpRequest);
-                serverResponse = new ServerResponse();
+                serverResponse = new SimpleServerResponse();
                 serverResponse.setStatusCode(httpResponse.getStatusLine().getStatusCode());
-                serverResponse.setContent(EntityUtils.toString(httpResponse.getEntity()));
-                httpResponse.getEntity().consumeContent();
+                httpEntity = httpResponse.getEntity();
+                serverResponse.setContent(EntityUtils.toString(httpEntity));
+                httpEntity.consumeContent();
                 serverResponse.setSuccess(true);
                 
-                return serverResponse;
 	        } catch (UnsupportedEncodingException e) {
                 this.e = e;
                 // covers UrlEncodedFormEntity issues
@@ -138,15 +148,15 @@ public class PortfoliosActivity extends ListActivity
                 e.printStackTrace();
             }
            
-            return null;
+            return serverResponse;
         }
 	    
 	    
 	    @Override 
-	    protected void onPostExecute(ServerResponse response) {
+	    protected void onPostExecute(SimpleServerResponse serverResponse) {
 	        
 	        if (e == null) {
-	            Log.i(app.TAG, "Portfolios loaded: " + response.getContent());
+	            Log.i(app.TAG, "Portfolios loaded: " + serverResponse.getContent());
 	        }
 	        
 //	        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, portfoliosList, R.layout.list_portfolios, new String[] { "name", "portfolio_id" }, new int[] { R.id.item_title, R.id.item_subtitle });
@@ -156,7 +166,7 @@ public class PortfoliosActivity extends ListActivity
 	        
 	    }
 	}
-		
+	
 	
 	private ArrayList<HashMap<String, String>> processPortfolioJSON(JSONObject json) {
 	    
