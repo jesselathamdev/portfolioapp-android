@@ -7,7 +7,6 @@ import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseActivity;
 import com.conceptmob.portfolioapp.core.BaseApplication;
 
-import android.app.Application;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.util.Log;
 public class SplashActivity extends BaseActivity {
 
     private BaseApplication app;
+    
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +40,7 @@ public class SplashActivity extends BaseActivity {
         // Create a thread to show splash screen up to splash time
         Thread splashThread = new Thread() {
             int wait = 0;
+            String authToken = null;
             
             @Override
             public void run() {
@@ -49,6 +50,8 @@ public class SplashActivity extends BaseActivity {
                     // This is a filler; replace this with any background processes that need to run during start up; important to keep this as an async process in a thread
                     // so that it does not interfere with the main UI thread that is responsible for screen loading etc
                     
+                    authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
+                    
                     // Use while to get the splash screen time. Use sleep() to increase the wait variable for every 100L
                     while (wait < splashScreenTimer) {
                         sleep(100);
@@ -56,16 +59,21 @@ public class SplashActivity extends BaseActivity {
                     }
                 } catch (Exception e) {
                     System.out.println("EXC=" + e);                 
-                } finally {
-                    // Called after splash time's up. Do some action after splash times up. Here we moved to another main activity class
-                    startActivity(new Intent(SplashActivity.this, SignInActivity.class));
-                    
+                } finally {                    
+                    if (authToken != null) {
+                        // go straight to portfolios list
+                        startActivity(new Intent(SplashActivity.this, PortfoliosActivity.class));                        
+                    } else {
+                        // go to login screen
+                        startActivity(new Intent(SplashActivity.this, SignInActivity.class));
+                    }
                     SplashActivity.this.finish();
                 }
             }
         };
         splashThread.start();
     }
+    
     
     private void setDefaultPreferences() {
         // sets default preferences that are used elsewhere in the application such as a unique identifier for API calls 

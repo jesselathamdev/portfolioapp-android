@@ -29,8 +29,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -43,6 +45,10 @@ public class PortfoliosActivity extends ListActivity
     private String authToken;
     private String identifier;
     
+    
+    // ###################################################################################################################
+    // onCreate
+    // ###################################################################################################################
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +70,11 @@ public class PortfoliosActivity extends ListActivity
 		}
     }
 	
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
 	
-	
+    // ###################################################################################################################
+    // AsyncTask
+    // ###################################################################################################################
+    
 	private class PortfolioTask extends AsyncTask<String, Void, SimpleServerResponse> {
 	    
 	    private HttpClient httpClient;
@@ -157,36 +159,38 @@ public class PortfoliosActivity extends ListActivity
                 Log.i(app.TAG, "Response: " + content);
                 
                 switch (statusCode) {
-                    case 201:
+                    case 200:
                         Log.i(app.TAG, "HTTP 200: Portfolios retrieved successfully");
                         
-                        Log.i(app.TAG, "Response: " + content);
-//                        ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
-//                        
-//                        try {
-//                            JSONObject json = new JSONObject(content);
-//                            JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
-//                            
-//                            for (int i = 0; i < portfolios.length(); i++) {
-//                                HashMap<String, String> map = new HashMap<String, String>();
-//                                JSONObject p = portfolios.getJSONObject(i);
-//                                map.put("id", String.valueOf(i));
-//                                map.put("name", p.getString("name"));
-//                                map.put("portfolio_id", p.getString("id".toString()));
-//                                portfoliosList.add(map);
-//                            }           
-//                        } catch (JSONException e) {
-//                            Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
-//                        }
+                        ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
                         
-//                        ListAdapter adapter = new SimpleAdapter(activity, 
-//                                portfoliosList, 
-//                                R.layout.list_portfolios, 
-//                                new String[] { "name", "portfolio_id" }, 
-//                                new int[] { R.id.item_title, R.id.item_subtitle });
-//                        setListAdapter(adapter);
-//                        final ListView lv = getListView();
-//                        lv.setTextFilterEnabled(true);
+                        try {
+                            JSONObject json = new JSONObject(content);
+                            JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
+                            
+                            for (int i = 0; i < portfolios.length(); i++) {
+                                HashMap<String, String> map = new HashMap<String, String>();
+                                JSONObject p = portfolios.getJSONObject(i);
+                                map.put("id", String.valueOf(i));
+                                map.put("name", p.getString("name"));
+                                map.put("portfolio_id", p.getString("id".toString()));
+                                portfoliosList.add(map);
+                            }           
+                        } catch (JSONException e) {
+                            Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
+                        }
+                        
+                        Log.i(app.TAG, "Processed JSON");
+                        
+                        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, 
+                                portfoliosList, 
+                                R.layout.list_portfolios, 
+                                new String[] { "name", "portfolio_id" }, 
+                                new int[] { R.id.item_title, R.id.item_subtitle });
+                        PortfoliosActivity.this.setListAdapter(adapter);
+                        
+                        final ListView lv = getListView();
+                        lv.setTextFilterEnabled(true);
                         
                         break;
                     case 401:
@@ -202,25 +206,42 @@ public class PortfoliosActivity extends ListActivity
 	}
 	
 	
-	private ArrayList<HashMap<String, String>> processPortfolioJSON(JSONObject json) {
-	    
-	    ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
-	    
-	    try {
-	        JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
-	        
-	        for (int i = 0; i < portfolios.length(); i++) {
-	            HashMap<String, String> map = new HashMap<String, String>();
-	            JSONObject p = portfolios.getJSONObject(i);
-	            map.put("id", String.valueOf(i));
-	            map.put("name", p.getString("name"));
-	            map.put("portfolio_id", p.getString("id".toString()));
-	            portfoliosList.add(map);
-	        }	        
-	    } catch (JSONException e) {
-	        Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
+	// ###################################################################################################################
+	// Menus
+	// ###################################################################################################################
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case R.id.menu_settings:
+	            // Settings code:
+	            // 1. Launch new activity
+	            
+	            return true;
+	        case R.id.menu_signout:
+	            // Sign Out code:
+	            // 1. Destroy auth token on server (do later)
+	            // 2. Remove auth token from shared preferences
+	            // 3. Close out this activity and launch Sign In page
+	            
+	            // clear out auth token
+	            PreferencesSingleton.getInstance().setPreference("authToken", null);
+	            
+	            // start activity
+	            startActivity(new Intent(PortfoliosActivity.this, SignInActivity.class));
+	            PortfoliosActivity.this.finish();
+	            
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
 	    }
-	    
-        return portfoliosList;
 	}
+	
+	
 }

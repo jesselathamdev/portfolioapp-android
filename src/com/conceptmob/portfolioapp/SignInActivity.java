@@ -200,10 +200,12 @@ public class SignInActivity extends Activity {
                         // store the auth token that was just received
                         PreferencesSingleton.getInstance().setPreference("authToken", authTokenContainer.response.token);
                         
-                        Intent intent = new Intent(this.context, PortfoliosActivity.class);
-                        intent.putExtra("authTokenResponse", content);
-                        this.context.startActivity(intent);
+                        this.context.startActivity(new Intent(this.context, PortfoliosActivity.class));
                         SignInActivity.this.finish();
+//                        Intent intent = new Intent(this.context, PortfoliosActivity.class);
+//                        intent.putExtra("authTokenResponse", content);
+//                        this.context.startActivity(intent);
+//                        SignInActivity.this.finish();
                         
                         break;
                     case 401:
