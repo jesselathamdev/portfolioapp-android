@@ -62,7 +62,7 @@ public class SignInActivity extends Activity {
         btnSignIn = (Button)findViewById(R.id.btnSignInSubmit);
         
         // helpers, remove for prod
-        etEmail.setText("user1@conceptmob.com");
+        etEmail.setText("user@conceptmob.com");
         etPassword.setText("access");
         
         btnSignIn.setOnClickListener(new View.OnClickListener() {

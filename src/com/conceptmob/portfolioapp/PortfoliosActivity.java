@@ -2,7 +2,10 @@ package com.conceptmob.portfolioapp;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,11 +31,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -44,6 +51,7 @@ public class PortfoliosActivity extends ListActivity
     private BaseApplication app;
     private String authToken;
     private String identifier;
+    ListView lv;
     
     
     // ###################################################################################################################
@@ -63,6 +71,9 @@ public class PortfoliosActivity extends ListActivity
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
 		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
 		
+		lv = getListView();
+        lv.setTextFilterEnabled(true);
+		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
@@ -81,16 +92,27 @@ public class PortfoliosActivity extends ListActivity
 	    private Exception e = null;
         private Activity activity;
         private Context context; 
+        private ProgressDialog progress;
 	    
-	    
+        
+        // constructor ###################################################################################################################
+        
 	    protected PortfolioTask(Activity activity) {
             this.context = activity;
+            progress = new ProgressDialog(this.context);
 	        httpClient = app.getHttpClient();
 	    }
 	    
 	    
-	    protected void onPreExecute() {}
+	    // onPreExecute ###################################################################################################################
 	    
+	    protected void onPreExecute() {
+	        progress.setMessage("Reticulating splines...");
+            progress.show();
+	    }
+	    
+	    
+	    // doInBackground ###################################################################################################################
 	    
 	    @Override
 	    protected SimpleServerResponse doInBackground(String... args) {
@@ -146,8 +168,13 @@ public class PortfoliosActivity extends ListActivity
         }
 	    
 	    
+	    // onPostExecute ###################################################################################################################
+	    
 	    @Override 
 	    protected void onPostExecute(SimpleServerResponse serverResponse) {
+            if (progress.isShowing()) {
+                progress.dismiss();
+            }
 	        
 	        // check to see if an exception came back and check the success of the request, do we have a response?
             if (e == null && serverResponse != null) {
@@ -156,7 +183,6 @@ public class PortfoliosActivity extends ListActivity
                 String content = serverResponse.getContent();
                 
                 Log.i(app.TAG, "Status Code: " + Integer.toString(statusCode));
-                Log.i(app.TAG, "Response: " + content);
                 
                 switch (statusCode) {
                     case 200:
@@ -168,12 +194,31 @@ public class PortfoliosActivity extends ListActivity
                             JSONObject json = new JSONObject(content);
                             JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
                             
+                            DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00;-$#,##0.00");
+                            DecimalFormat percentFormat = new DecimalFormat("#,##0.00%;-#,##0.00%");
+                            
+//                            Currency currency = Currency.getInstance("CAD");                            
+//                            NumberFormat format = NumberFormat.getInstance();
+//                            format.setMaximumFractionDigits(currency.getDefaultFractionDigits());
+//                            format.setCurrency(currency);
+                            
                             for (int i = 0; i < portfolios.length(); i++) {
                                 HashMap<String, String> map = new HashMap<String, String>();
                                 JSONObject p = portfolios.getJSONObject(i);
                                 map.put("id", String.valueOf(i));
-                                map.put("name", p.getString("name"));
+                                
                                 map.put("portfolio_id", p.getString("id".toString()));
+                                
+                                map.put("name", p.getString("name"));
+                                
+                                map.put("book_value", dollarFormat.format(p.getDouble("book_value")));
+                                
+                                map.put("market_value", dollarFormat.format(p.getDouble("market_value")));
+                                
+                                map.put("net_gain_dollar", dollarFormat.format(p.getDouble("net_gain_dollar")));
+                                
+                                map.put("net_gain_percent", " (" + percentFormat.format(p.getDouble("net_gain_percent")/100) + ")");
+                                
                                 portfoliosList.add(map);
                             }           
                         } catch (JSONException e) {
@@ -182,15 +227,22 @@ public class PortfoliosActivity extends ListActivity
                         
                         Log.i(app.TAG, "Processed JSON");
                         
+                        // get a reference to the layout which describes an item row and populates it as required
                         ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, 
                                 portfoliosList, 
-                                R.layout.list_portfolios, 
-                                new String[] { "name", "portfolio_id" }, 
-                                new int[] { R.id.item_title, R.id.item_subtitle });
+                                R.layout.actiivty_portfolios_list_item, 
+                                new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
+                                new int[] {R.id.portfolio_item_name, R.id.portfolio_item_book_value, R.id.portfolio_item_market_value, R.id.portfolio_item_net_gain_dollar, R.id.portfolio_item_net_gain_percent, R.id.portfolio_item_id});
+                        
                         PortfoliosActivity.this.setListAdapter(adapter);
                         
-                        final ListView lv = getListView();
-                        lv.setTextFilterEnabled(true);
+                        lv.setOnItemClickListener(new OnItemClickListener() {
+                        
+                            @Override
+                            public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+                                Toast.makeText(PortfoliosActivity.this.getApplicationContext(), "Clicked: " + id + " at position: " + position, Toast.LENGTH_SHORT).show();
+                            }                            
+                        });
                         
                         break;
                     case 401:
