@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
 import com.conceptmob.portfolioapp.core.BaseApplication;
 
 import android.os.AsyncTask;
@@ -34,15 +35,19 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -194,30 +199,16 @@ public class PortfoliosActivity extends ListActivity
                             JSONObject json = new JSONObject(content);
                             JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
                             
-                            DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00;-$#,##0.00");
-                            DecimalFormat percentFormat = new DecimalFormat("#,##0.00%;-#,##0.00%");
-                            
-//                            Currency currency = Currency.getInstance("CAD");                            
-//                            NumberFormat format = NumberFormat.getInstance();
-//                            format.setMaximumFractionDigits(currency.getDefaultFractionDigits());
-//                            format.setCurrency(currency);
-                            
                             for (int i = 0; i < portfolios.length(); i++) {
                                 HashMap<String, String> map = new HashMap<String, String>();
                                 JSONObject p = portfolios.getJSONObject(i);
                                 map.put("id", String.valueOf(i));
-                                
                                 map.put("portfolio_id", p.getString("id".toString()));
-                                
                                 map.put("name", p.getString("name"));
-                                
-                                map.put("book_value", dollarFormat.format(p.getDouble("book_value")));
-                                
-                                map.put("market_value", dollarFormat.format(p.getDouble("market_value")));
-                                
-                                map.put("net_gain_dollar", dollarFormat.format(p.getDouble("net_gain_dollar")));
-                                
-                                map.put("net_gain_percent", " (" + percentFormat.format(p.getDouble("net_gain_percent")/100) + ")");
+                                map.put("book_value", p.getString("book_value"));
+                                map.put("market_value", p.getString("market_value"));
+                                map.put("net_gain_dollar", p.getString("net_gain_dollar"));                                
+                                map.put("net_gain_percent", p.getString("net_gain_percent"));
                                 
                                 portfoliosList.add(map);
                             }           
@@ -228,7 +219,7 @@ public class PortfoliosActivity extends ListActivity
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new SimpleAdapter(PortfoliosActivity.this, 
+                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, 
                                 portfoliosList, 
                                 R.layout.actiivty_portfolios_list_item, 
                                 new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
@@ -293,7 +284,5 @@ public class PortfoliosActivity extends ListActivity
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
-	}
-	
-	
+	}  	
 }

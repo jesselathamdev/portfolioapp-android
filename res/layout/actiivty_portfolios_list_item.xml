@@ -17,6 +17,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:text="&lt;name>"
+            android:textColor="#ffffff"
             android:textSize="18sp" />
 
         <TextView
@@ -26,6 +27,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:text="&lt;market value>"
+            android:textColor="#ffffff"
             android:textSize="15sp" />
     </RelativeLayout>
 
@@ -42,6 +44,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:text="Book Value"
+            android:textColor="#999999"
             android:textSize="13sp" />
 
         <TextView
@@ -51,6 +54,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:text="Gain/Loss"
+            android:textColor="#999999"
             android:textSize="13sp" />
     </RelativeLayout>
 
@@ -68,6 +72,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:text="&lt;book value>"
+            android:textColor="#ffffff"
             android:textSize="15sp" />
 
         <TextView
@@ -77,6 +82,7 @@
             android:layout_alignParentBottom="true"
             android:layout_toLeftOf="@+id/portfolio_item_net_gain_percent"
             android:text="&lt;net gain dollar>"
+            android:textColor="#ffffff"
             android:textSize="15sp" />
 
         <TextView
@@ -86,6 +92,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:text="&lt;net gain percent>"
+            android:textColor="#ffffff"
             android:textSize="13sp" />
         
     </RelativeLayout>
