@@ -22,7 +22,7 @@ public class PortfolioListAdapter extends SimpleAdapter {
     private HashMap<String, String> item;
     private Context context;
     DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00;-$#,##0.00");
-    DecimalFormat percentFormat = new DecimalFormat("#,##0.00%;-#,##0.00%");
+    DecimalFormat percentFormat = new DecimalFormat("+#,##0.00%;-#,##0.00%");
     
     public PortfolioListAdapter(Context context, List<HashMap<String, String>> items, int resource, String[] from, int[] to) {
         super(context, items, resource, from, to);
@@ -64,14 +64,29 @@ public class PortfolioListAdapter extends SimpleAdapter {
             holder.tvNetGainDollar.setText(dollarFormat.format(Double.parseDouble(item.get("net_gain_dollar"))));
             holder.tvNetGainPercent.setText(" (" + percentFormat.format(Double.parseDouble(item.get("net_gain_percent"))/100) + ")");
             
-            // conditionally display what we need to
+            // update market value based on current status
+            double bookValue = Double.parseDouble(item.get("book_value"));
             double marketValue = Double.parseDouble(item.get("market_value"));
-            if (marketValue > 0) 
+            
+            if (marketValue > bookValue)
                 holder.tvMarketValue.setTextColor(Color.parseColor("#008800"));
-            else if (marketValue < 0)
-                holder.tvMarketValue.setTextColor(Color.parseColor("#880000"));
+            else if (marketValue < bookValue)
+                holder.tvMarketValue.setTextColor(Color.parseColor("#aa0000"));
             else
-                holder.tvMarketValue.setTextColor(Color.parseColor("#ffffff"));
+                holder.tvMarketValue.setTextColor(Color.parseColor("#ff9b49"));
+            
+            // update net gain fields based on current status
+            double netGainDollar = Double.parseDouble(item.get("net_gain_dollar"));
+            if (netGainDollar > 0) {
+                holder.tvNetGainDollar.setTextColor(Color.parseColor("#008800"));
+                holder.tvNetGainPercent.setTextColor(Color.parseColor("#008800"));
+            } else if (netGainDollar < 0) {
+                holder.tvNetGainDollar.setTextColor(Color.parseColor("#aa0000"));
+                holder.tvNetGainPercent.setTextColor(Color.parseColor("#aa0000"));
+            } else {
+                holder.tvNetGainDollar.setTextColor(Color.parseColor("#ff9b49"));
+                holder.tvNetGainPercent.setTextColor(Color.parseColor("#ff9b49"));
+            }            
         }
             
         return convertView;

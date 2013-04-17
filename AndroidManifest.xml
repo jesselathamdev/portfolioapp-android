@@ -44,6 +44,16 @@
             android:screenOrientation="portrait"
             android:label="Portfolios">
         </activity>
+        <activity
+            android:name=".HoldingsActivity"
+            android:screenOrientation="portrait"
+            android:label="Holdings">
+        </activity>
+        <activity
+            android:name=".TransactionActivityActivity"
+            android:screenOrientation="portrait"
+            android:label="Activity">
+        </activity>
     </application>
 
 </manifest>

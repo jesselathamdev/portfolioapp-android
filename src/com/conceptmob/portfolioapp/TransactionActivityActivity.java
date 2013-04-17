@@ -30,8 +30,6 @@ import com.conceptmob.portfolioapp.core.BaseApplication;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -46,16 +44,14 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PortfoliosActivity extends ListActivity
+public class TransactionActivityActivity extends ListActivity
 {
     private BaseApplication app;
     private String authToken;
@@ -74,9 +70,7 @@ public class PortfoliosActivity extends ListActivity
         // pull app instance details from BaseApplication
         app = (BaseApplication)this.getApplication();
         
-        Log.i(app.TAG, "SCREEN: Loaded Portfolio activity.");
-        
-        setupNavigation();
+        Log.i(app.TAG, "SCREEN: Loaded Transaction Activity activity.");
         
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
@@ -88,23 +82,12 @@ public class PortfoliosActivity extends ListActivity
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
-		    new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
+		    // new PortfolioTask(HoldingsActivity.this).execute(authToken, identifier);
+		    Toast.makeText(this, "Transaction Activity activity", Toast.LENGTH_SHORT).show();
 		}
     }
-    
-    
-    // ###################################################################################################################
-    // setupNavigation
-    // ###################################################################################################################
-    
-    private void setupNavigation() {
-        getActionBar().setDisplayShowTitleEnabled(false);
-        SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
-        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        
-        getActionBar().setListNavigationCallbacks(spinnerAdapter, null);
-    }
-    
+	
+	
     // ###################################################################################################################
     // AsyncTask
     // ###################################################################################################################
@@ -238,13 +221,13 @@ public class PortfoliosActivity extends ListActivity
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, 
+                        ListAdapter adapter = new PortfolioListAdapter(TransactionActivityActivity.this, 
                                 portfoliosList, 
                                 R.layout.actiivty_portfolios_list_item, 
                                 new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
                                 new int[] {R.id.portfolio_item_name, R.id.portfolio_item_book_value, R.id.portfolio_item_market_value, R.id.portfolio_item_net_gain_dollar, R.id.portfolio_item_net_gain_percent, R.id.portfolio_item_id});
                         
-                        PortfoliosActivity.this.setListAdapter(adapter);
+                        TransactionActivityActivity.this.setListAdapter(adapter);
                         
                         break;
                     case 401:
@@ -288,7 +271,7 @@ public class PortfoliosActivity extends ListActivity
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 	        case R.id.menu_refresh:
-	            new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
+	            new PortfolioTask(TransactionActivityActivity.this).execute(authToken, identifier);
 	            
 	            return true;	        
 	        case R.id.menu_settings:
@@ -306,8 +289,8 @@ public class PortfoliosActivity extends ListActivity
 	            PreferencesSingleton.getInstance().setPreference("authToken", null);
 	            
 	            // start activity
-	            startActivity(new Intent(PortfoliosActivity.this, SignInActivity.class));
-	            PortfoliosActivity.this.finish();
+	            startActivity(new Intent(TransactionActivityActivity.this, SignInActivity.class));
+	            TransactionActivityActivity.this.finish();
 	            
 	            return true;
 	        default:
