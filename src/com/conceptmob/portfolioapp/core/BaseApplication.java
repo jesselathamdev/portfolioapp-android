@@ -10,11 +10,12 @@ import com.conceptmob.core.communication.HttpClientProvider;
 import android.app.Application;
 import android.util.Log;
 
+
 public class BaseApplication extends Application {
 
     public String TAG = "PortfolioApp";
     public String BASE_URL = "http://portfolioapp.conceptmob.com/api/v2/";
-    // public String BASE_URL = "http://10.0.2.2:8000/api/v2/";
+//    public String BASE_URL = "http://10.0.2.2:8000/api/v2/";
     private DefaultHttpClient httpClient;
     
     

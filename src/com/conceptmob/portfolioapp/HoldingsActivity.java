@@ -27,6 +27,7 @@ import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
 import com.conceptmob.portfolioapp.core.BaseApplication;
+import com.conceptmob.portfolioapp.core.BaseListActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -51,7 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class HoldingsActivity extends ListActivity
+public class HoldingsActivity extends BaseListActivity
 {
     private BaseApplication app;
     private String authToken;

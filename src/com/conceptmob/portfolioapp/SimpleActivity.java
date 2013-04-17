@@ -30,22 +30,7 @@ public class SimpleActivity extends BaseActivity {
         // set up the associated layout
         setContentView(R.layout.activity_simple);
         
-        Intent intent = getIntent();
-        String authTokenResponse = intent.getStringExtra("authTokenResponse");
-        
-        ObjectMapper mapper = new ObjectMapper();
-        AuthTokenContainer authTokenContainer = null;
-        
-        try {
-            authTokenContainer = mapper.readValue(authTokenResponse, AuthTokenContainer.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
         tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);        
-        tvMessage.setText("Hello " + authTokenContainer.response.user.firstName + ", and welcome to your next challenge!");
-        
-        tvMessage2 = (TextView)findViewById(R.id.tvSimpleActivityLabel02);        
-        tvMessage2.setText("Original response: " + authTokenResponse);
+        tvMessage.setText("Hello and welcome to your next challenge!");
     }
 }

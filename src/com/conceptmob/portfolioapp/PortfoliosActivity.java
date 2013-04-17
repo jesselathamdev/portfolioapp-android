@@ -27,6 +27,7 @@ import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
 import com.conceptmob.portfolioapp.core.BaseApplication;
+import com.conceptmob.portfolioapp.core.BaseListActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,7 +56,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PortfoliosActivity extends ListActivity
+public class PortfoliosActivity extends BaseListActivity
 {
     private BaseApplication app;
     private String authToken;
@@ -76,7 +77,7 @@ public class PortfoliosActivity extends ListActivity
         
         Log.i(app.TAG, "SCREEN: Loaded Portfolio activity.");
         
-        setupNavigation();
+        // setupNavigation();
         
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
@@ -92,18 +93,6 @@ public class PortfoliosActivity extends ListActivity
 		}
     }
     
-    
-    // ###################################################################################################################
-    // setupNavigation
-    // ###################################################################################################################
-    
-    private void setupNavigation() {
-        getActionBar().setDisplayShowTitleEnabled(false);
-        SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
-        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        
-        getActionBar().setListNavigationCallbacks(spinnerAdapter, null);
-    }
     
     // ###################################################################################################################
     // AsyncTask
