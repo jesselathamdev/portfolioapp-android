@@ -2,10 +2,7 @@ package com.conceptmob.portfolioapp;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,42 +23,28 @@ import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
-import com.conceptmob.portfolioapp.core.BaseApplication;
-import com.conceptmob.portfolioapp.core.BaseListActivity;
+import com.conceptmob.portfolioapp.core.BaseActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PortfoliosActivity extends BaseListActivity
-{
-    private BaseApplication app;
+public class PortfoliosActivity extends BaseActivity {
+    
     private String authToken;
     private String identifier;
-    ListView lv;
+    private ListView lvPortfolios;
     
     
     // ###################################################################################################################
@@ -71,26 +54,44 @@ public class PortfoliosActivity extends BaseListActivity
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		
-        // pull app instance details from BaseApplication
-        app = (BaseApplication)this.getApplication();
         
         Log.i(app.TAG, "SCREEN: Loaded Portfolio activity.");
         
-        // setupNavigation();
+        // set up the associated layout
+        setContentView(R.layout.activity_portfolios);
+        
+        initNavigation();
         
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
 		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
 		
-		lv = getListView();
-        lv.setTextFilterEnabled(true);
+		lvPortfolios = (ListView)findViewById(R.id.lvPortfolioList);
 		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
-		    new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
+		    
+		    getPortfolios();
+		
+		    lvPortfolios.setOnItemClickListener(new OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                    Toast.makeText(getBaseContext(), "Selected: " + position, Toast.LENGTH_SHORT).show();
+                }
+		        
+		    });
 		}
+    }
+    
+    
+    // ###################################################################################################################
+    // getPortfolios
+    // ###################################################################################################################
+    
+    public void getPortfolios() {
+        new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
     }
     
     
@@ -233,7 +234,7 @@ public class PortfoliosActivity extends BaseListActivity
                                 new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
                                 new int[] {R.id.portfolio_item_name, R.id.portfolio_item_book_value, R.id.portfolio_item_market_value, R.id.portfolio_item_net_gain_dollar, R.id.portfolio_item_net_gain_percent, R.id.portfolio_item_id});
                         
-                        PortfoliosActivity.this.setListAdapter(adapter);
+                        lvPortfolios.setAdapter(adapter);
                         
                         break;
                     case 401:
@@ -249,58 +250,21 @@ public class PortfoliosActivity extends BaseListActivity
 	}
 	
 	
-	// ###################################################################################################################
-    // onListItemClick
     // ###################################################################################################################
-	
-	@Override
-	public void onListItemClick(ListView listView, View view, int position, long id) {
-	    super.onListItemClick(listView, view, position, id);
-	    
-	    Object object = this.getListAdapter().getItem(position);
-	    String keyword = object.toString();
-	    Toast.makeText(this, "You selected: " + keyword, Toast.LENGTH_SHORT).show();	    
-	}
-	
-	
-	// ###################################################################################################################
-	// Menus
-	// ###################################################################################################################
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    // Menus
+    // ###################################################################################################################
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                getPortfolios();
+                
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	        case R.id.menu_refresh:
-	            new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
-	            
-	            return true;	        
-	        case R.id.menu_settings:
-	            // Settings code:
-	            // 1. Launch new activity
-	            
-	            return true;
-	        case R.id.menu_signout:
-	            // Sign Out code:
-	            // 1. Destroy auth token on server (do later)
-	            // 2. Remove auth token from shared preferences
-	            // 3. Close out this activity and launch Sign In page
-	            
-	            // clear out auth token
-	            PreferencesSingleton.getInstance().setPreference("authToken", null);
-	            
-	            // start activity
-	            startActivity(new Intent(PortfoliosActivity.this, SignInActivity.class));
-	            PortfoliosActivity.this.finish();
-	            
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
-	}  	
 }

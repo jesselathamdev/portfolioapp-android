@@ -18,7 +18,7 @@ import org.apache.http.util.EntityUtils;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.core.BaseApplication;
+import com.conceptmob.portfolioapp.core.BaseActivity;
 import com.conceptmob.portfolioapp.data.AuthTokenContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,20 +36,20 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-public class SignInActivity extends Activity {
-    
-    private BaseApplication app;    
+public class SignInActivity extends BaseActivity {
+      
     private EditText etEmail;
     private EditText etPassword;
     private Button btnSignIn;
     
     
+    // ###################################################################################################################
+    // onCreate
+    // ###################################################################################################################
+    
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // pull app instance details from BaseApplication
-        app = (BaseApplication)this.getApplication();
         
         Log.i(app.TAG, "ACTIVITY: Loaded Sign In");
         
@@ -66,6 +66,7 @@ public class SignInActivity extends Activity {
         etPassword.setText("access");
         
         btnSignIn.setOnClickListener(new View.OnClickListener() {
+            
            @Override
            public void onClick(View v) {     
                String email = etEmail.getText().toString();
@@ -84,9 +85,14 @@ public class SignInActivity extends Activity {
                    Toast.makeText(getApplicationContext(), "Email Address and/or Password Required", Toast.LENGTH_LONG).show();
                } 
            }
+           
         });
     }
     
+    
+    // ###################################################################################################################
+    // AsyncTask
+    // ###################################################################################################################
     
     private class LoginTask extends AsyncTask<String, Void, SimpleServerResponse> {
         
@@ -97,6 +103,8 @@ public class SignInActivity extends Activity {
         private ProgressDialog progress;
         
         
+        // constructor ###################################################################################################################
+        
         protected LoginTask(Activity activity) {
             this.context = activity;
             progress = new ProgressDialog(this.context);
@@ -104,11 +112,15 @@ public class SignInActivity extends Activity {
         }
         
         
+        // onPreExecute ###################################################################################################################
+        
         protected void onPreExecute() {
             progress.setMessage("Signing in");
             progress.show();
         }
         
+        
+        // doInBackground ###################################################################################################################
         
         protected SimpleServerResponse doInBackground(String... args) {
             Log.i(app.TAG, "doInBackground started for Login");
@@ -165,6 +177,8 @@ public class SignInActivity extends Activity {
             return serverResponse;
         }
         
+        
+        // onPostExecute ###################################################################################################################
         
         @Override
         protected void onPostExecute(SimpleServerResponse serverResponse) {

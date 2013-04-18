@@ -5,24 +5,23 @@ import java.util.UUID;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.core.BaseActivity;
-import com.conceptmob.portfolioapp.core.BaseApplication;
 
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
 
+
 public class SplashActivity extends BaseActivity {
 
-    private BaseApplication app;
     
+    // ###################################################################################################################
+    // onCreate
+    // ###################################################################################################################
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // pull app instance details from BaseApplication
-        app = (BaseApplication)this.getApplication();
         
         Log.i(app.TAG, "ACTIVITY: Loaded Splash");
         
@@ -74,6 +73,10 @@ public class SplashActivity extends BaseActivity {
         splashThread.start();
     }
     
+    
+    // ###################################################################################################################
+    // setDefaultPreferences
+    // ###################################################################################################################
     
     private void setDefaultPreferences() {
         // sets default preferences that are used elsewhere in the application such as a unique identifier for API calls 
