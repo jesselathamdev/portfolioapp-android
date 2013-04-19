@@ -6,7 +6,16 @@
         res/values-v11/styles.xml on API 14+ devices.
     -->
     <style name="AppBaseTheme" parent="android:Theme.Holo">
-        <!-- API 14 theme customizations can go here. -->
+        <item name="android:actionDropDownStyle">@style/ActionBarNavigationDropDown</item>        
     </style>
 
+    <!-- action bar navigation -->
+    <style name="ActionBarNavigation" parent="android:style/Widget.Holo.ActionBar">
+        <item name="android:textColor">#ffffff</item>
+    </style>
+    
+    <style name="ActionBarNavigationDropDown" parent="android:style/Widget.Spinner">
+        <item name="android:textColor">#ffffff</item>
+    </style>
+    
 </resources>

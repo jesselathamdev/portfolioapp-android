@@ -60,7 +60,7 @@ public class PortfoliosActivity extends BaseActivity {
         // set up the associated layout
         setContentView(R.layout.activity_portfolios);
         
-        initNavigation();
+        initActionBar();
         
 		// try and pick up the authToken from shared preferences
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);

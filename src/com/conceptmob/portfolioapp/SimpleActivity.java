@@ -1,5 +1,6 @@
 package com.conceptmob.portfolioapp;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -22,7 +23,11 @@ public class SimpleActivity extends BaseActivity {
         // set up the associated layout
         setContentView(R.layout.activity_simple);
 
-        initNavigation();
+        initActionBar();
+        
+        ActionBar actionBar = getActionBar();
+        
+        
         
         tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);        
         tvMessage.setText("Hello and welcome to your next challenge!");

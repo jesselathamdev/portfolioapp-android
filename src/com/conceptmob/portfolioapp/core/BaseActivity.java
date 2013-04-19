@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -40,7 +41,7 @@ public class BaseActivity extends Activity {
     // initNavigation
     // ###################################################################################################################
     
-    public void initNavigation() {
+    public void initActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
@@ -56,12 +57,14 @@ public class BaseActivity extends Activity {
                 if (firstHit) {
                     firstHit = false;
                     return true;
-                }
+                } 
                 
                 Intent intent;
                 
                 switch (position) {
                     case 0:     // portfolios
+                        app.currentNavigationItem = 0; 
+                        
                         intent = new Intent(getApplicationContext(), PortfoliosActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
@@ -69,6 +72,8 @@ public class BaseActivity extends Activity {
                         
                         break;
                     case 1:     // transaction activity
+                        app.currentNavigationItem = 1;
+                        
                         intent = new Intent(getApplicationContext(), SimpleActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);                        
@@ -77,10 +82,13 @@ public class BaseActivity extends Activity {
                         break;
                 }   
                     
-                return true;
+                return false;
             }
             
         });
+        
+        // set the actionbar nagivation spinner to the last known value, otherwise it resets with the above code
+        actionBar.setSelectedNavigationItem(app.currentNavigationItem);
     }
     
     
