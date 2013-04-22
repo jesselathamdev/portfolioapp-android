@@ -5,17 +5,22 @@ import com.conceptmob.portfolioapp.PortfoliosActivity;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.SignInActivity;
 import com.conceptmob.portfolioapp.SimpleActivity;
+import com.conceptmob.portfolioapp.TransactionActivityActivity;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -44,7 +49,9 @@ public class BaseActivity extends Activity {
     public void initActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
-        SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+        
+        // actionBar.getThemedContext() is taken from https://code.google.com/p/android/issues/detail?id=25624 when using dark themes and the text not appearing correctly
+        SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(actionBar.getThemedContext(), R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         
         actionBar.setListNavigationCallbacks(spinnerAdapter, new OnNavigationListener() {
@@ -74,7 +81,7 @@ public class BaseActivity extends Activity {
                     case 1:     // transaction activity
                         app.currentNavigationItem = 1;
                         
-                        intent = new Intent(getApplicationContext(), SimpleActivity.class);
+                        intent = new Intent(getApplicationContext(), TransactionActivityActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);                        
                         finish();
@@ -125,7 +132,7 @@ public class BaseActivity extends Activity {
                 Intent intent = new Intent(BaseActivity.this, SignInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-                BaseActivity.this.finish();
+                finish();
                 
                 return true;
             default:

@@ -29,6 +29,7 @@ public class SimpleActivity extends BaseActivity {
         
         
         
+        
         tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);        
         tvMessage.setText("Hello and welcome to your next challenge!");
     }

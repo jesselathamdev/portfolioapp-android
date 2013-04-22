@@ -19,32 +19,34 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
 import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
+import com.conceptmob.portfolioapp.adapters.TransactionActivityListAdapter;
 import com.conceptmob.portfolioapp.core.BaseActivity;
 
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.util.Log;
-import android.view.View;
-import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
-
-public class PortfoliosActivity extends BaseActivity {
-    
+public class TransactionActivityActivity extends BaseActivity {
+  
     private String authToken;
     private String identifier;
-    private ListView lvPortfolios;
+    private ListView lvActivity;
     
     
     // ###################################################################################################################
@@ -52,46 +54,47 @@ public class PortfoliosActivity extends BaseActivity {
     // ###################################################################################################################
     
     @Override
-	protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        Log.i(app.TAG, "ACTIVITY: Loaded Portfolio activity.");
+
+        Log.i(app.TAG, "ACTIVITY: Loaded Transaction Activity activity.");
         
         // set up the associated layout
-        setContentView(R.layout.activity_portfolios);
+        setContentView(R.layout.activity_transaction_activity);
         
         initActionBar();
         
-		// try and pick up the authToken from shared preferences
-		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
-		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
-		
-		lvPortfolios = (ListView)findViewById(R.id.lvPortfolioList);
-		
-		// make sure that there's a valid authToken
-		if (authToken != null) {
-            // do the main work in an asynctask		    
-		    
-		    getPortfolios();
-		
-		    lvPortfolios.setOnItemClickListener(new OnItemClickListener() {
+        // try and pick up the authToken from shared preferences
+        authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
+        identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
+        
+        lvActivity = (ListView)findViewById(R.id.lvTransactionActivityList);
+        
+        // make sure that there's a valid authToken
+        if (authToken != null) {
+            // do the main work in an asynctask         
+            
+            getTransactionActivity();
+        
+            lvActivity.setOnItemClickListener(new OnItemClickListener() {
 
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                     Toast.makeText(getBaseContext(), "Selected: " + position, Toast.LENGTH_SHORT).show();
                 }
-		        
-		    });
-		}
+                
+            });
+        }
+
     }
     
     
     // ###################################################################################################################
-    // getPortfolios
+    // getTransactionActivity
     // ###################################################################################################################
     
-    public void getPortfolios() {
-        new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
+    public void getTransactionActivity() {
+        new TransactionActivityTask(TransactionActivityActivity.this).execute(authToken, identifier);
     }
     
     
@@ -99,52 +102,52 @@ public class PortfoliosActivity extends BaseActivity {
     // AsyncTask
     // ###################################################################################################################
     
-	private class PortfolioTask extends AsyncTask<String, Void, SimpleServerResponse> {
-	    
-	    private HttpClient httpClient;
-	    private Exception e = null;
+    private class TransactionActivityTask extends AsyncTask<String, Void, SimpleServerResponse> {
+        
+        private HttpClient httpClient;
+        private Exception e = null;
         private Activity activity;
         private Context context; 
         private ProgressDialog progress;
-	    
+        
         
         // constructor ###################################################################################################################
         
-	    protected PortfolioTask(Activity activity) {
+        protected TransactionActivityTask(Activity activity) {
             this.context = activity;
             progress = new ProgressDialog(this.context);
-	        httpClient = app.getHttpClient();
-	    }
-	    
-	    
-	    // onPreExecute ###################################################################################################################
-	    
-	    protected void onPreExecute() {
-	        progress.setMessage("Reticulating splines...");
+            httpClient = app.getHttpClient();
+        }
+        
+        
+        // onPreExecute ###################################################################################################################
+        
+        protected void onPreExecute() {
+            progress.setMessage("Reticulating splines...");
             progress.show();
-	    }
-	    
-	    
-	    // doInBackground ###################################################################################################################
-	    
-	    @Override
-	    protected SimpleServerResponse doInBackground(String... args) {
-	        Log.i(app.TAG, "doInBackground started for Portfolios");
-	    
-	        SimpleServerResponse serverResponse = null;
-	        
-	        try {
-	            // build the encoded parameters required for the request
+        }
+        
+        
+        // doInBackground ###################################################################################################################
+        
+        @Override
+        protected SimpleServerResponse doInBackground(String... args) {
+            Log.i(app.TAG, "doInBackground started for Portfolios");
+        
+            SimpleServerResponse serverResponse = null;
+            
+            try {
+                // build the encoded parameters required for the request
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("token", args[0]));
                 params.add(new BasicNameValuePair("identifier", args[1]));
                 
                 String paramString = URLEncodedUtils.format(params, HTTP.UTF_8);
-	            
-	            HttpGet httpRequest = new HttpGet(app.BASE_URL + "portfolios?" + paramString);	            
-	            HttpResponse httpResponse = null;
-	            HttpEntity httpEntity = null;
-	            
+                
+                HttpGet httpRequest = new HttpGet(app.BASE_URL + "activity?" + paramString);              
+                HttpResponse httpResponse = null;
+                HttpEntity httpEntity = null;
+                
                 // Log a few details
                 Log.i(app.TAG, "Executing HTTP request (Login)");
                 
@@ -159,7 +162,7 @@ public class PortfoliosActivity extends BaseActivity {
                 }
                 serverResponse.setSuccess(true);
                 
-	        } catch (UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException e) {
                 this.e = e;
                 // covers UrlEncodedFormEntity issues
                 e.printStackTrace();
@@ -179,17 +182,17 @@ public class PortfoliosActivity extends BaseActivity {
            
             return serverResponse;
         }
-	    
-	    
-	    // onPostExecute ###################################################################################################################
-	    
-	    @Override 
-	    protected void onPostExecute(SimpleServerResponse serverResponse) {
+        
+        
+        // onPostExecute ###################################################################################################################
+        
+        @Override 
+        protected void onPostExecute(SimpleServerResponse serverResponse) {
             if (progress.isShowing()) {
                 progress.dismiss();
             }
-	        
-	        // check to see if an exception came back and check the success of the request, do we have a response?
+            
+            // check to see if an exception came back and check the success of the request, do we have a response?
             if (e == null && serverResponse != null) {
                 // pull out details from the response
                 int statusCode = serverResponse.getStatusCode();
@@ -199,42 +202,42 @@ public class PortfoliosActivity extends BaseActivity {
                 
                 switch (statusCode) {
                     case 200:
-                        Log.i(app.TAG, "HTTP 200: Portfolios retrieved successfully");
+                        Log.i(app.TAG, "HTTP 200: Transaction activity retrieved successfully");
                         
-                        ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
+                        ArrayList<HashMap<String, String>> activityList = new ArrayList<HashMap<String, String>>();
                         
                         try {
                             JSONObject json = new JSONObject(content);
-                            JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
+                            JSONArray activity = json.getJSONObject("response").getJSONArray("activity");
                             
                             // parse the JSON object and pull out the values that are of interest to us
-                            for (int i = 0; i < portfolios.length(); i++) {
+                            for (int i = 0; i < activity.length(); i++) {
                                 HashMap<String, String> map = new HashMap<String, String>();
-                                JSONObject p = portfolios.getJSONObject(i);
+                                JSONObject a = activity.getJSONObject(i);
                                 map.put("id", String.valueOf(i));
-                                map.put("portfolio_id", p.getString("id".toString()));
-                                map.put("name", p.getString("name"));
-                                map.put("book_value", p.getString("book_value"));
-                                map.put("market_value", p.getString("market_value"));
-                                map.put("net_gain_dollar", p.getString("net_gain_dollar"));                                
-                                map.put("net_gain_percent", p.getString("net_gain_percent"));
+                                map.put("portfolio_id", a.getString("id".toString()));
+//                                map.put("name", p.getString("name"));
+//                                map.put("book_value", p.getString("book_value"));
+//                                map.put("market_value", p.getString("market_value"));
+//                                map.put("net_gain_dollar", p.getString("net_gain_dollar"));                                
+//                                map.put("net_gain_percent", p.getString("net_gain_percent"));
                                 
-                                portfoliosList.add(map);
+                                activityList.add(map);
                             }           
                         } catch (JSONException e) {
-                            Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
+                            Log.e("log_tag", "Error parsing transaction activity JSON: " + e.toString());
                         }
                         
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, 
-                                portfoliosList, 
-                                R.layout.activity_portfolios_list_item, 
-                                new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
-                                new int[] {R.id.portfolio_item_name, R.id.portfolio_item_book_value, R.id.portfolio_item_market_value, R.id.portfolio_item_net_gain_dollar, R.id.portfolio_item_net_gain_percent, R.id.portfolio_item_id});
+                        ListAdapter adapter = new TransactionActivityListAdapter(TransactionActivityActivity.this, 
+                                activityList, 
+                                R.layout.activity_transaction_activity_list_item, 
+                                new String[] {"portfolio_id", "id"}, 
+                                new int[] {R.id.activity_item_portfolio_id, R.id.activity_item_id});
                         
-                        lvPortfolios.setAdapter(adapter);
+                        lvActivity.setAdapter(adapter);
                         
                         break;
                     case 401:
@@ -246,10 +249,10 @@ public class PortfoliosActivity extends BaseActivity {
                         Toast.makeText(getApplicationContext(), "An error occurred while processing your request.  Please try again.", Toast.LENGTH_LONG).show();
                 }
             }
-	    }
-	}
-	
-	
+        }
+    }
+    
+    
     // ###################################################################################################################
     // Menus
     // ###################################################################################################################
@@ -260,7 +263,7 @@ public class PortfoliosActivity extends BaseActivity {
         
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                getPortfolios();
+                getTransactionActivity();
                 
                 return true;
             default:

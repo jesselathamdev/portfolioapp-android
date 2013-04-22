@@ -40,7 +40,7 @@ public class PortfolioListAdapter extends SimpleAdapter {
         if (convertView == null) {
             LayoutInflater li = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             
-            convertView = li.inflate(R.layout.actiivty_portfolios_list_item, parent, false);
+            convertView = li.inflate(R.layout.activity_portfolios_list_item, parent, false);
             
             holder = new PortfolioViewHolder();
             holder.tvName = (TextView)convertView.findViewById(R.id.portfolio_item_name);
