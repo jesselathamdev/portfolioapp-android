@@ -7,20 +7,20 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.conceptmob.portfolioapp.R;
 
 
-public class TransactionActivityListAdapter extends SimpleAdapter {
+public class TransactionActivityListAdapter extends ArrayAdapter<HashMap<String, String>> {
     
     private List<HashMap<String, String>> items;
     private HashMap<String, String> item;
     private Context context;
     
-    public TransactionActivityListAdapter(Context context, List<HashMap<String, String>> items, int resource, String[] from, int[] to) {
-        super(context, items, resource, from, to);
+    public TransactionActivityListAdapter(Context context, List<HashMap<String, String>> items) {
+        super(context, R.layout.activity_transaction_activity_list_item, items);
         
         this.context = context;
         this.items = items;
@@ -28,7 +28,6 @@ public class TransactionActivityListAdapter extends SimpleAdapter {
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // View view = super.getView(position, convertView, parent);  // view acts as a row reference
         
         TransactionActivityViewHolder holder;
         
@@ -39,24 +38,40 @@ public class TransactionActivityListAdapter extends SimpleAdapter {
             
             holder = new TransactionActivityViewHolder();
             
+            holder.tvId = (TextView)convertView.findViewById(R.id.activity_item_id);
             holder.tvPortfolioId = (TextView)convertView.findViewById(R.id.activity_item_portfolio_id);
+            holder.tvDateTransacted = (TextView)convertView.findViewById(R.id.activity_item_date_transacted);
+            holder.tvStockName = (TextView)convertView.findViewById(R.id.activity_item_stock_name);
+            holder.tvValue = (TextView)convertView.findViewById(R.id.activity_item_value);
+            holder.tvQuantity = (TextView)convertView.findViewById(R.id.activity_item_quantity);
             
             convertView.setTag(holder);
         } else {
-            holder = (TransactionActivityViewHolder)convertView.getTag();
+            holder = (TransactionActivityViewHolder)convertView.getTag();            
         }
         
         item = items.get(position);
         
         if (item != null) {
             // set text values
-            holder.tvPortfolioId.setText(item.get("id"));                        
+            holder.tvId.setText(item.get("id"));
+            holder.tvPortfolioId.setText(item.get("portfolio_id"));
+            holder.tvDateTransacted.setText(item.get("date_transacted"));
+            holder.tvStockName.setText(item.get("name"));
+            holder.tvValue.setText(item.get("value"));
+            holder.tvQuantity.setText(item.get("quantity"));
         }
             
         return convertView;
     }
     
+    
     static class TransactionActivityViewHolder {
+        TextView tvId;
         TextView tvPortfolioId;
+        TextView tvDateTransacted;
+        TextView tvStockName;
+        TextView tvValue;
+        TextView tvQuantity;
     }
 }

@@ -4,16 +4,47 @@
     android:orientation="vertical" >
 
     <TextView
-            android:id="@+id/activity_item_portfolio_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="&lt;portfolio id>"
-            android:textColor="#ffffff"
-            android:textSize="18sp" />
+         android:id="@+id/activity_item_date_transacted"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="&lt;date transacted>"
+         android:textColor="#ffffff"
+         android:textSize="16sp" />
+    
+    <TextView
+         android:id="@+id/activity_item_stock_name"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="&lt;stock name>"
+         android:textColor="#ffffff"
+         android:textSize="16sp" />
 
+    <TextView
+         android:id="@+id/activity_item_value"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="&lt;value>"
+         android:textColor="#ffffff"
+         android:textSize="16sp" />
+    
+    <TextView
+         android:id="@+id/activity_item_quantity"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="&lt;quantity>"
+         android:textColor="#ffffff"
+         android:textSize="16sp" />
+    
+    <TextView
+        android:id="@+id/activity_item_portfolio_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+    
     <TextView
         android:id="@+id/activity_item_id"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
 </LinearLayout>

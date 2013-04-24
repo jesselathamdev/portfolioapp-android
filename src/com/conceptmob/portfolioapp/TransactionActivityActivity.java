@@ -216,11 +216,10 @@ public class TransactionActivityActivity extends BaseActivity {
                                 JSONObject a = activity.getJSONObject(i);
                                 map.put("id", String.valueOf(i));
                                 map.put("portfolio_id", a.getString("id".toString()));
-//                                map.put("name", p.getString("name"));
-//                                map.put("book_value", p.getString("book_value"));
-//                                map.put("market_value", p.getString("market_value"));
-//                                map.put("net_gain_dollar", p.getString("net_gain_dollar"));                                
-//                                map.put("net_gain_percent", p.getString("net_gain_percent"));
+                                map.put("date_transacted", a.getString("date_transacted"));
+                                map.put("name", a.getString("name"));
+                                map.put("value", a.getString("value"));
+                                map.put("quantity", a.getString("quantity"));
                                 
                                 activityList.add(map);
                             }           
@@ -231,11 +230,7 @@ public class TransactionActivityActivity extends BaseActivity {
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new TransactionActivityListAdapter(TransactionActivityActivity.this, 
-                                activityList, 
-                                R.layout.activity_transaction_activity_list_item, 
-                                new String[] {"portfolio_id", "id"}, 
-                                new int[] {R.id.activity_item_portfolio_id, R.id.activity_item_id});
+                        ListAdapter adapter = new TransactionActivityListAdapter(TransactionActivityActivity.this, activityList);
                         
                         lvActivity.setAdapter(adapter);
                         

@@ -228,11 +228,7 @@ public class PortfoliosActivity extends BaseActivity {
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, 
-                                portfoliosList, 
-                                R.layout.activity_portfolios_list_item, 
-                                new String[] {"name", "book_value", "market_value", "net_gain_dollar", "net_gain_percent", "id"}, 
-                                new int[] {R.id.portfolio_item_name, R.id.portfolio_item_book_value, R.id.portfolio_item_market_value, R.id.portfolio_item_net_gain_dollar, R.id.portfolio_item_net_gain_percent, R.id.portfolio_item_id});
+                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, portfoliosList);
                         
                         lvPortfolios.setAdapter(adapter);
                         

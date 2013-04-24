@@ -6,17 +6,16 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.conceptmob.portfolioapp.R;
 
 
-public class PortfolioListAdapter extends SimpleAdapter {
+public class PortfolioListAdapter extends ArrayAdapter<HashMap<String, String>> {
     
     private List<HashMap<String, String>> items;
     private HashMap<String, String> item;
@@ -24,8 +23,8 @@ public class PortfolioListAdapter extends SimpleAdapter {
     DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00;-$#,##0.00");
     DecimalFormat percentFormat = new DecimalFormat("+#,##0.00%;-#,##0.00%");
     
-    public PortfolioListAdapter(Context context, List<HashMap<String, String>> items, int resource, String[] from, int[] to) {
-        super(context, items, resource, from, to);
+    public PortfolioListAdapter(Context context, List<HashMap<String, String>> items) {
+        super(context, R.layout.activity_portfolios_list_item, items);
         
         this.context = context;
         this.items = items;
@@ -33,7 +32,6 @@ public class PortfolioListAdapter extends SimpleAdapter {
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // View view = super.getView(position, convertView, parent);  // view acts as a row reference
         
         PortfolioViewHolder holder;
         
@@ -91,6 +89,7 @@ public class PortfolioListAdapter extends SimpleAdapter {
             
         return convertView;
     }
+    
     
     static class PortfolioViewHolder {
         TextView tvName;
