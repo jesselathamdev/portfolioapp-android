@@ -30,8 +30,6 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.util.Log;
 import android.view.View;
 import android.view.MenuItem;
@@ -42,7 +40,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class PortfoliosActivity extends BaseActivity {
+public class PortfolioHoldingsActivity extends BaseActivity {
     
     private String authToken;
     private String identifier;
@@ -57,7 +55,7 @@ public class PortfoliosActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        Log.i(app.TAG, "ACTIVITY: Loaded Portfolios activity.");
+        Log.i(app.TAG, "ACTIVITY: Loaded Portfolio Holdings activity.");
         
         // set up the associated layout
         setContentView(R.layout.activity_portfolios);
@@ -80,13 +78,7 @@ public class PortfoliosActivity extends BaseActivity {
 
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                    
-                    HashMap<String, String> map = (HashMap<String, String>)lvPortfolios.getItemAtPosition(position); // map.get("portfolio_id");
-                    
-                    Intent intent = new Intent(getApplicationContext(), SimpleActivity.class);
-                    intent.putExtra("portfolio_id", map.get("portfolio_id"));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);                   
+                    Toast.makeText(getBaseContext(), "Selected: " + position, Toast.LENGTH_SHORT).show();
                 }
 		        
 		    });
@@ -99,7 +91,7 @@ public class PortfoliosActivity extends BaseActivity {
     // ###################################################################################################################
     
     public void getPortfolios() {
-        new PortfolioTask(PortfoliosActivity.this).execute(authToken, identifier);
+        new PortfolioTask(PortfolioHoldingsActivity.this).execute(authToken, identifier);
     }
     
     
@@ -219,7 +211,7 @@ public class PortfoliosActivity extends BaseActivity {
                             for (int i = 0; i < portfolios.length(); i++) {
                                 HashMap<String, String> map = new HashMap<String, String>();
                                 JSONObject p = portfolios.getJSONObject(i);
-                                map.put("id", String.valueOf(i));                                
+                                map.put("id", String.valueOf(i));
                                 map.put("portfolio_id", p.getString("id".toString()));
                                 map.put("name", p.getString("name"));
                                 map.put("book_value", p.getString("book_value"));
@@ -236,7 +228,7 @@ public class PortfoliosActivity extends BaseActivity {
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, portfoliosList);
+                        ListAdapter adapter = new PortfolioListAdapter(PortfolioHoldingsActivity.this, portfoliosList);
                         
                         lvPortfolios.setAdapter(adapter);
                         

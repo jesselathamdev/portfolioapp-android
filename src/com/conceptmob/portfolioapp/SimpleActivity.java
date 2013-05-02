@@ -1,6 +1,5 @@
 package com.conceptmob.portfolioapp;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -12,7 +11,7 @@ import com.conceptmob.portfolioapp.core.BaseActivity;
 public class SimpleActivity extends BaseActivity {
   
     private TextView tvMessage;
-    
+    private String message;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,12 +24,14 @@ public class SimpleActivity extends BaseActivity {
 
         initActionBar();
         
-        ActionBar actionBar = getActionBar();
+        message = "Nothing found!";
         
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            message = extras.getString("portfolio_id");
+        }
         
-        
-        
-        tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);        
-        tvMessage.setText("Hello and welcome to your next challenge!");
+        tvMessage = (TextView)findViewById(R.id.tvSimpleActivityLabel01);
+        tvMessage.setText(message);
     }
 }
