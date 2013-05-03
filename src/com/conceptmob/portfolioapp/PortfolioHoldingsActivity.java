@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
+import com.conceptmob.portfolioapp.adapters.PortfolioHoldingsListAdapter;
 import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
 import com.conceptmob.portfolioapp.core.BaseActivity;
 
@@ -44,6 +45,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
     
     private String authToken;
     private String identifier;
+    private String portfolioId;
     private ListView lvPortfolioHoldings;
     
     
@@ -66,13 +68,19 @@ public class PortfolioHoldingsActivity extends BaseActivity {
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
 		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
 		
+		// get the portfolio containing the holdings in question from the previous activity
+		Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            portfolioId = extras.getString("portfolio_id");
+        }
+		
 		lvPortfolioHoldings = (ListView)findViewById(R.id.lvPortfolioHoldings);
 		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
 		    
-		    getPortfolioHoldings();
+		    getPortfolioHoldings(authToken, identifier, portfolioId);
 		
 		    lvPortfolioHoldings.setOnItemClickListener(new OnItemClickListener() {
 
@@ -90,8 +98,8 @@ public class PortfolioHoldingsActivity extends BaseActivity {
     // getPortfolioHoldings
     // ###################################################################################################################
     
-    public void getPortfolioHoldings() {
-        new PortfolioHoldingsTask(PortfolioHoldingsActivity.this).execute(authToken, identifier);
+    public void getPortfolioHoldings(String authToken, String identifier, String portfolio_id) {
+        new PortfolioHoldingsTask(PortfolioHoldingsActivity.this).execute(authToken, identifier, portfolio_id);
     }
     
     
@@ -138,10 +146,13 @@ public class PortfolioHoldingsActivity extends BaseActivity {
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("token", args[0]));
                 params.add(new BasicNameValuePair("identifier", args[1]));
-                
-                String paramString = URLEncodedUtils.format(params, HTTP.UTF_8);
+                                
+                String paramAuthString = URLEncodedUtils.format(params, HTTP.UTF_8);
 	            
-	            HttpGet httpRequest = new HttpGet(app.BASE_URL + "portfolios?" + paramString);	            
+                // get the portfolio id from the args
+                String pId = args[2];
+                
+	            HttpGet httpRequest = new HttpGet(app.BASE_URL + "portfolios/" + pId + "/holdings?" + paramAuthString);	            
 	            HttpResponse httpResponse = null;
 	            HttpEntity httpEntity = null;
 	            
@@ -201,34 +212,32 @@ public class PortfolioHoldingsActivity extends BaseActivity {
                     case 200:
                         Log.i(app.TAG, "HTTP 200: Portfolio Holdings retrieved successfully");
                         
-                        ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
+                        ArrayList<HashMap<String, String>> portfolioHoldingsList = new ArrayList<HashMap<String, String>>();
                         
                         try {
                             JSONObject json = new JSONObject(content);
-                            JSONArray portfolios = json.getJSONObject("response").getJSONArray("portfolios");
+                            JSONArray portfolioHoldings = json.getJSONObject("response").getJSONArray("portfolio_holdings");
                             
                             // parse the JSON object and pull out the values that are of interest to us
-                            for (int i = 0; i < portfolios.length(); i++) {
+                            for (int i = 0; i < portfolioHoldings.length(); i++) {
                                 HashMap<String, String> map = new HashMap<String, String>();
-                                JSONObject p = portfolios.getJSONObject(i);
+                                JSONObject p = portfolioHoldings.getJSONObject(i);
                                 map.put("id", String.valueOf(i));
-                                map.put("portfolio_id", p.getString("id".toString()));
-                                map.put("name", p.getString("name"));
-                                map.put("book_value", p.getString("book_value"));
-                                map.put("market_value", p.getString("market_value"));
-                                map.put("net_gain_dollar", p.getString("net_gain_dollar"));                                
-                                map.put("net_gain_percent", p.getString("net_gain_percent"));
+                                map.put("portfolio_id", p.getString("portfolio_id".toString()));
+                                map.put("stock_name", p.getString("stock_name"));
+                                map.put("last_price", p.getString("last_price"));
+                                map.put("total_quantity", p.getString("total_quantity"));
                                 
-                                portfoliosList.add(map);
+                                portfolioHoldingsList.add(map);
                             }           
                         } catch (JSONException e) {
-                            Log.e("log_tag", "Error parsing portfolio JSON: " + e.toString());
+                            Log.e("log_tag", "Error parsing portfolio holding JSON: " + e.toString());
                         }
                         
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfolioHoldingsActivity.this, portfoliosList);
+                        ListAdapter adapter = new PortfolioHoldingsListAdapter(PortfolioHoldingsActivity.this, portfolioHoldingsList);
                         
                         lvPortfolioHoldings.setAdapter(adapter);
                         
@@ -256,7 +265,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
         
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                getPortfolioHoldings();
+                getPortfolioHoldings(authToken, identifier, portfolioId);
                 
                 return true;
             default:

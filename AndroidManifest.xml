@@ -47,7 +47,8 @@
         <activity
             android:name=".PortfolioHoldingsActivity"
             android:screenOrientation="portrait"
-            android:label="Portfolio Holdings">
+            android:label="Portfolio Holdings"
+            android:noHistory="true">
         </activity>
         <activity
             android:name=".TransactionActivityActivity"

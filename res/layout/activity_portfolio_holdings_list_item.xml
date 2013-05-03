@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="25dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp"
+        android:layout_marginTop="5dp" >
+
+        <TextView
+            android:id="@+id/portfolio_holding_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="&lt;name>"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="7dp" >
+
+        <TextView
+            android:id="@+id/portfolio_holding_item_last_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="&lt;last price>"
+            android:textColor="#ffffff"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/portfolio_holding_item_total_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="&lt;total quantity>"
+            android:textColor="#ffffff"
+            android:textSize="15sp" />        
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/portfolio_holding_item_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+</LinearLayout>
