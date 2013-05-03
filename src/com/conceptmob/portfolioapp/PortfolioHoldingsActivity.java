@@ -44,7 +44,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
     
     private String authToken;
     private String identifier;
-    private ListView lvPortfolios;
+    private ListView lvPortfolioHoldings;
     
     
     // ###################################################################################################################
@@ -58,7 +58,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
         Log.i(app.TAG, "ACTIVITY: Loaded Portfolio Holdings activity.");
         
         // set up the associated layout
-        setContentView(R.layout.activity_portfolios);
+        setContentView(R.layout.activity_portfolio_holdings);
         
         initActionBar();
         
@@ -66,15 +66,15 @@ public class PortfolioHoldingsActivity extends BaseActivity {
 		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
 		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
 		
-		lvPortfolios = (ListView)findViewById(R.id.lvPortfolioList);
+		lvPortfolioHoldings = (ListView)findViewById(R.id.lvPortfolioHoldings);
 		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
 		    
-		    getPortfolios();
+		    getPortfolioHoldings();
 		
-		    lvPortfolios.setOnItemClickListener(new OnItemClickListener() {
+		    lvPortfolioHoldings.setOnItemClickListener(new OnItemClickListener() {
 
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -87,11 +87,11 @@ public class PortfolioHoldingsActivity extends BaseActivity {
     
     
     // ###################################################################################################################
-    // getPortfolios
+    // getPortfolioHoldings
     // ###################################################################################################################
     
-    public void getPortfolios() {
-        new PortfolioTask(PortfolioHoldingsActivity.this).execute(authToken, identifier);
+    public void getPortfolioHoldings() {
+        new PortfolioHoldingsTask(PortfolioHoldingsActivity.this).execute(authToken, identifier);
     }
     
     
@@ -99,7 +99,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
     // AsyncTask
     // ###################################################################################################################
     
-	private class PortfolioTask extends AsyncTask<String, Void, SimpleServerResponse> {
+	private class PortfolioHoldingsTask extends AsyncTask<String, Void, SimpleServerResponse> {
 	    
 	    private HttpClient httpClient;
 	    private Exception e = null;
@@ -110,7 +110,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
         
         // constructor ###################################################################################################################
         
-	    protected PortfolioTask(Activity activity) {
+	    protected PortfolioHoldingsTask(Activity activity) {
             this.context = activity;
             progress = new ProgressDialog(this.context);
 	        httpClient = app.getHttpClient();
@@ -129,7 +129,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
 	    
 	    @Override
 	    protected SimpleServerResponse doInBackground(String... args) {
-	        Log.i(app.TAG, "doInBackground started for Portfolios");
+	        Log.i(app.TAG, "doInBackground started for Portfolio Holdings");
 	    
 	        SimpleServerResponse serverResponse = null;
 	        
@@ -199,7 +199,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
                 
                 switch (statusCode) {
                     case 200:
-                        Log.i(app.TAG, "HTTP 200: Portfolios retrieved successfully");
+                        Log.i(app.TAG, "HTTP 200: Portfolio Holdings retrieved successfully");
                         
                         ArrayList<HashMap<String, String>> portfoliosList = new ArrayList<HashMap<String, String>>();
                         
@@ -230,7 +230,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
                         // get a reference to the layout which describes an item row and populates it as required
                         ListAdapter adapter = new PortfolioListAdapter(PortfolioHoldingsActivity.this, portfoliosList);
                         
-                        lvPortfolios.setAdapter(adapter);
+                        lvPortfolioHoldings.setAdapter(adapter);
                         
                         break;
                     case 401:
@@ -256,7 +256,7 @@ public class PortfolioHoldingsActivity extends BaseActivity {
         
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                getPortfolios();
+                getPortfolioHoldings();
                 
                 return true;
             default:

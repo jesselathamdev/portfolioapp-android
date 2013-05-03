@@ -83,7 +83,7 @@ public class PortfoliosActivity extends BaseActivity {
                     
                     HashMap<String, String> map = (HashMap<String, String>)lvPortfolios.getItemAtPosition(position); // map.get("portfolio_id");
                     
-                    Intent intent = new Intent(getApplicationContext(), SimpleActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), PortfolioHoldingsActivity.class);
                     intent.putExtra("portfolio_id", map.get("portfolio_id"));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);                   
@@ -153,8 +153,7 @@ public class PortfoliosActivity extends BaseActivity {
 	            HttpResponse httpResponse = null;
 	            HttpEntity httpEntity = null;
 	            
-                // Log a few details
-                Log.i(app.TAG, "Executing HTTP request (Login)");
+                Log.i(app.TAG, "Executing HTTP request (GET Portfolios)");
                 
                 // execute request and handle return response, returning it a custom server response object (due to potentially long running EntityUtils)
                 httpResponse = httpClient.execute(httpRequest);
@@ -166,6 +165,8 @@ public class PortfoliosActivity extends BaseActivity {
                     httpEntity.consumeContent();
                 }
                 serverResponse.setSuccess(true);
+                
+                Log.i(app.TAG, "Completed HTTP request (GET Portfolios)");
                 
 	        } catch (UnsupportedEncodingException e) {
                 this.e = e;
