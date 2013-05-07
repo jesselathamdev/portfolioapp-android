@@ -1,8 +1,10 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.activites;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,8 +24,8 @@ import org.json.JSONObject;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
-import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.adapters.PortfoliosListAdapter;
+import com.conceptmob.portfolioapp.base.BaseActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.MenuItem;
@@ -39,6 +42,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -47,6 +51,7 @@ public class PortfoliosActivity extends BaseActivity {
     private String authToken;
     private String identifier;
     private ListView lvPortfolios;
+    private TextView tvPortfoliosLastUpdated;
     
     
     // ###################################################################################################################
@@ -62,14 +67,10 @@ public class PortfoliosActivity extends BaseActivity {
         // set up the associated layout
         setContentView(R.layout.activity_portfolios);
         
-        initActionBar();
+        initActionBar();        
+        initPreferences();
+        initViewReferences();
         
-		// try and pick up the authToken from shared preferences
-		authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
-		identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);
-		
-		lvPortfolios = (ListView)findViewById(R.id.lvPortfolioList);
-		
 		// make sure that there's a valid authToken
 		if (authToken != null) {
             // do the main work in an asynctask		    
@@ -91,6 +92,27 @@ public class PortfoliosActivity extends BaseActivity {
 		        
 		    });
 		}
+    }
+    
+    
+    // ###################################################################################################################
+    // initPreferences
+    // ###################################################################################################################
+    
+    private void initPreferences() {
+        // fetch the preferences from the common singleton store
+        authToken = PreferencesSingleton.getInstance().getPreference("authToken", null);
+        identifier = PreferencesSingleton.getInstance().getPreference("identifier", null);        
+    }
+    
+    
+    // ###################################################################################################################
+    // initViewReferences
+    // ###################################################################################################################
+    
+    private void initViewReferences() {
+        lvPortfolios = (ListView)findViewById(R.id.lvPortfolioList);  
+        tvPortfoliosLastUpdated = (TextView)findViewById(R.id.tvPortfoliosLastUpdated);
     }
     
     
@@ -237,9 +259,15 @@ public class PortfoliosActivity extends BaseActivity {
                         Log.i(app.TAG, "Processed JSON");
                         
                         // get a reference to the layout which describes an item row and populates it as required
-                        ListAdapter adapter = new PortfolioListAdapter(PortfoliosActivity.this, portfoliosList);
+                        ListAdapter adapter = new PortfoliosListAdapter(PortfoliosActivity.this, portfoliosList);
                         
                         lvPortfolios.setAdapter(adapter);
+                        
+                        // update the date and time last updated at the bottom of the screen
+                        Date date = new Date();
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM d, yyyy h:mma zzz");
+                        
+                        tvPortfoliosLastUpdated.setText("Last updated " + simpleDateFormat.format(date));
                         
                         break;
                     case 401:

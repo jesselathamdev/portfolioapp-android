@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.conceptmob.portfolioapp.R;
 
 
-public class PortfolioListAdapter extends ArrayAdapter<HashMap<String, String>> {
+public class PortfoliosListAdapter extends ArrayAdapter<HashMap<String, String>> {
     
     private List<HashMap<String, String>> items;
     private HashMap<String, String> item;
@@ -23,7 +23,7 @@ public class PortfolioListAdapter extends ArrayAdapter<HashMap<String, String>> 
     DecimalFormat dollarFormat = new DecimalFormat("$#,##0.00;-$#,##0.00");
     DecimalFormat percentFormat = new DecimalFormat("+#,##0.00%;-#,##0.00%");
     
-    public PortfolioListAdapter(Context context, List<HashMap<String, String>> items) {
+    public PortfoliosListAdapter(Context context, List<HashMap<String, String>> items) {
         super(context, R.layout.activity_portfolios_list_item, items);
         
         this.context = context;

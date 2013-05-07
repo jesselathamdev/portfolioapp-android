@@ -15,9 +15,9 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="com.conceptmob.portfolioapp.core.BaseApplication">
+        android:name="com.conceptmob.portfolioapp.base.BaseApplication">
         <activity
-            android:name=".SplashActivity"
+            android:name=".activites.SplashActivity"
             android:theme="@android:style/Theme.NoTitleBar"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -28,30 +28,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SignInActivity"
+            android:name=".activites.SignInActivity"
             android:theme="@android:style/Theme.NoTitleBar"            
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:noHistory="true">           
         </activity>
         <activity
-            android:name=".SimpleActivity"
+            android:name=".activites.SimpleActivity"
             android:screenOrientation="portrait"
             android:label="Testing">           
         </activity>
         <activity
-            android:name=".PortfoliosActivity"
+            android:name=".activites.PortfoliosActivity"
             android:screenOrientation="portrait"
             android:label="Portfolios">
         </activity>
         <activity
-            android:name=".PortfolioHoldingsActivity"
+            android:name=".activites.PortfolioHoldingsActivity"
             android:screenOrientation="portrait"
             android:label="Portfolio Holdings"
             android:noHistory="true">
         </activity>
         <activity
-            android:name=".TransactionActivityActivity"
+            android:name=".activites.TransactionActivityActivity"
             android:screenOrientation="portrait"
             android:label="Activity">
         </activity>

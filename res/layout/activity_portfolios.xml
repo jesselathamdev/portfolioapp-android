@@ -1,12 +1,25 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <ListView
-	    android:id="@+id/lvPortfolioList"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent" >
-    </ListView>
+    android:orientation="vertical">
     
-</LinearLayout>
+  <ListView
+      android:id="@+id/lvPortfolioList"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_above="@+id/tvPortfoliosLastUpdated"
+      android:layout_alignParentTop="true" >
+
+  </ListView>
+
+  <TextView
+      android:id="@+id/tvPortfoliosLastUpdated"
+      android:layout_width="match_parent"
+      android:layout_height="20dp"
+      android:layout_alignParentBottom="true"
+      android:gravity="center|center_vertical"
+      android:text="&lt;last updated date/time>"
+      android:textIsSelectable="false"
+      android:textSize="12sp" />
+  
+</RelativeLayout>

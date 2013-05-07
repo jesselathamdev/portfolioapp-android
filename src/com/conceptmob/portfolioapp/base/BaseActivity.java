@@ -1,11 +1,11 @@
-package com.conceptmob.portfolioapp.core;
+package com.conceptmob.portfolioapp.base;
 
 import com.conceptmob.core.utils.PreferencesSingleton;
-import com.conceptmob.portfolioapp.PortfoliosActivity;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.SignInActivity;
-import com.conceptmob.portfolioapp.SimpleActivity;
-import com.conceptmob.portfolioapp.TransactionActivityActivity;
+import com.conceptmob.portfolioapp.activites.PortfoliosActivity;
+import com.conceptmob.portfolioapp.activites.SignInActivity;
+import com.conceptmob.portfolioapp.activites.SimpleActivity;
+import com.conceptmob.portfolioapp.activites.TransactionActivityActivity;
 
 import android.app.ActionBar;
 import android.app.Activity;

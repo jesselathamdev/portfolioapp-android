@@ -1,4 +1,4 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.activites;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,7 +18,7 @@ import org.apache.http.util.EntityUtils;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.base.BaseActivity;
 import com.conceptmob.portfolioapp.data.AuthTokenContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

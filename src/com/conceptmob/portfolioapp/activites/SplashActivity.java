@@ -1,10 +1,10 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.activites;
 
 import java.util.UUID;
 
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.base.BaseActivity;
 
 import android.content.Intent;
 import android.graphics.PixelFormat;

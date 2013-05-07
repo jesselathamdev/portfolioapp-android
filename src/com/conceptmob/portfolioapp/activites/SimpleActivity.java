@@ -1,11 +1,11 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.activites;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.base.BaseActivity;
 
 
 public class SimpleActivity extends BaseActivity {

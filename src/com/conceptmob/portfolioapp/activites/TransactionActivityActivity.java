@@ -1,4 +1,4 @@
-package com.conceptmob.portfolioapp;
+package com.conceptmob.portfolioapp.activites;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,9 +37,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.conceptmob.core.communication.SimpleServerResponse;
 import com.conceptmob.core.utils.PreferencesSingleton;
 import com.conceptmob.portfolioapp.R;
-import com.conceptmob.portfolioapp.adapters.PortfolioListAdapter;
+import com.conceptmob.portfolioapp.adapters.PortfoliosListAdapter;
 import com.conceptmob.portfolioapp.adapters.TransactionActivityListAdapter;
-import com.conceptmob.portfolioapp.core.BaseActivity;
+import com.conceptmob.portfolioapp.base.BaseActivity;
 
 
 public class TransactionActivityActivity extends BaseActivity {

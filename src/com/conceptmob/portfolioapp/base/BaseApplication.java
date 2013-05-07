@@ -1,4 +1,4 @@
-package com.conceptmob.portfolioapp.core;
+package com.conceptmob.portfolioapp.base;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.SchemeRegistry;
